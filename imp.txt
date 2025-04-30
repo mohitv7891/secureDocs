@@ -1,0 +1,18 @@
+mongodb+srv://mohit:<db_password>@cluster0.an3nuds.mongodb.net/
+
+//gmp path
+/opt/homebrew/Cellar/gmp/6.3.0/
+
+//openssl path
+/opt/homebrew/bin/openssl
+
+//pbc path
+/opt/homebrew/Cellar/pbc/0.5.14/lib/
+
+//Genetated app db_password
+dufy pqwp xgez uvdx 
+
+mohitvishwakarma@mohits-MacBook-Air secure-doc-platform % node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+7c1af506c20e0a2cb34c27b7b634250529c0aab787d49c52bb7ae8211ac2d146
+
+

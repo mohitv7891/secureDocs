@@ -31,17 +31,28 @@ cd ../client
 npm install
 ```
 
-Create .env files in the server, kdc, and the client directory. The structure of the file should be:
-// client/.env
-VITE_API_BASE_URL="http://localhost:5006/api"
-VITE_KDC_BASE_URL="http://localhost:5007/api"
+## Environment Configuration
 
-// server/.env
+Create `.env` files in the **server**, **kdc**, and **client** directories with the following structure:
+
+---
+
+### `client/.env`
+```env
+VITE_API_BASE_URL="http://localhost:5006/api"
+
+VITE_KDC_BASE_URL="http://localhost:5007/api"
+```
+### `server/.env`
+```env
 MONGO_URI="Your-mongodb-cluster-uri"
 JWT_SECRET="A-long-random-string"
+```
 
-// kdc/.env
+### `kdc/.env`
+```env
 MONGO_URI="Your-mongodb-cluster-uri-different-cluster-to-be-used-here"
+
 JWT_SECRET="The-same-long-random-string"
 
 NATIVE_CRYPTO_DIR=/path-to-project-root-directory/kdc/opt/crypto-native
@@ -55,6 +66,7 @@ EMAIL_SECURE=true # Use true for 465, false for 587 (will use STARTTLS)
 EMAIL_USER=example@iiita.ac.in # The email address you send FROM
 EMAIL_PASS=**** # The 16-character App Password
 EMAIL_FROM='secure-doc-platform example@iiita.ac.in'
+```
 
 Go to /kdc/opt/crypto-native
 ```bash

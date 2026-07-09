@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SecureDocs — Interview Reference</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --ink: #0f172a; --muted: #475569; --light: #94a3b8;
+  --purple: #6d28d9; --blue: #0284c7; --green: #059669; --amber: #b45309;
+  --purple-bg: #ede9fe; --blue-bg: #e0f2fe; --green-bg: #d1fae5; --amber-bg: #fef3c7;
+  --border: #e2e8f0; --surface: #f8fafc;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; font-size: 9.5pt; color: var(--ink); background: #fff; line-height: 1.55; }
+
+/* ── Cover ── */
+.cover {
+  page-break-after: always;
+  background: linear-gradient(140deg, #1e1b4b 0%, #312e81 45%, #1e1b4b 100%);
+  color: #fff; padding: 64px 56px; min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.cover .chip {
+  display: inline-block; background: rgba(167,139,250,.2); border: 1px solid rgba(167,139,250,.4);
+  color: #c4b5fd; font-size: 7pt; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px; margin-bottom: 24px;
+}
+.cover h1 { font-size: 40pt; font-weight: 700; line-height: 1; letter-spacing: -1.5px; margin-bottom: 12px; }
+.cover h1 em { color: #a5b4fc; font-style: normal; }
+.cover .sub { color: #94a3b8; font-size: 11pt; max-width: 480px; margin-bottom: 40px; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; }
+.tag { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+       color: #cbd5e1; font-size: 8pt; padding: 4px 11px; border-radius: 5px; }
+.stats { display: flex; gap: 40px; }
+.stat .n { font-size: 28pt; font-weight: 700; color: #818cf8; line-height: 1; }
+.stat .l { font-size: 7.5pt; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+/* ── Pages ── */
+.page { padding: 44px 56px; }
+.pb { page-break-before: always; padding-top: 44px; }
+
+/* ── Headings ── */
+.sec { font-size: 7pt; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--purple); margin-bottom: 4px; }
+h2 { font-size: 18pt; font-weight: 700; color: var(--ink); margin-bottom: 4px; line-height: 1.15; }
+.rule { width: 40px; height: 3px; background: linear-gradient(90deg,#7c3aed,#0284c7); border-radius: 2px; margin-bottom: 22px; }
+h3 { font-size: 10.5pt; font-weight: 700; color: var(--ink); margin: 18px 0 7px; }
+h4 { font-size: 9.5pt; font-weight: 600; color: var(--ink); margin: 12px 0 5px; }
+p { color: var(--muted); margin-bottom: 8px; }
+
+/* ── Service cards ── */
+.services { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 14px 0; }
+.svc { border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+.svc::after { content:''; position:absolute; top:0;left:0;right:0; height:3px; }
+.svc.kdc::after { background: linear-gradient(90deg,#7c3aed,#a78bfa); }
+.svc.ds::after  { background: linear-gradient(90deg,#0284c7,#38bdf8); }
+.svc.ui::after  { background: linear-gradient(90deg,#059669,#34d399); }
+.svc .port { font-family:'JetBrains Mono',monospace; font-size:7.5pt; background:var(--surface);
+             border:1px solid var(--border); padding:2px 7px; border-radius:4px; color:var(--muted); display:inline-block; margin-bottom:6px; }
+.svc h4 { margin:4px 0 7px; }
+.svc ul { list-style:none; padding:0; }
+.svc li { font-size:8.5pt; color:var(--muted); padding:1.5px 0 1.5px 12px; position:relative; }
+.svc li::before { content:'›'; position:absolute; left:0; color:var(--purple); font-weight:700; }
+
+/* ── Tables ── */
+table { width:100%; border-collapse:collapse; margin:10px 0; font-size:8.5pt; }
+th { background:var(--ink); color:#fff; padding:7px 10px; text-align:left; font-weight:600; }
+td { padding:6px 10px; border-bottom:1px solid var(--border); color:var(--muted); }
+tr:nth-child(even) td { background:var(--surface); }
+td code, th code { font-family:'JetBrains Mono',monospace; font-size:7.5pt; }
+
+/* ── Code / math ── */
+pre { background:#0f172a; color:#e2e8f0; padding:13px 16px; border-radius:7px; margin:9px 0;
+      font-family:'JetBrains Mono',monospace; font-size:8pt; line-height:1.7;
+      border:1px solid #1e293b; overflow-x:auto; }
+code { font-family:'JetBrains Mono',monospace; font-size:7.8pt; background:var(--surface);
+       border:1px solid var(--border); padding:1px 5px; border-radius:3px; color:var(--purple); }
+.c  { color:#64748b; font-style:italic; }
+.kp { color:#c084fc; } .kb { color:#60a5fa; } .kg { color:#4ade80; }
+.ky { color:#fbbf24; } .kr { color:#fb923c; }
+
+/* ── Callout boxes ── */
+.box { border-radius:7px; padding:11px 14px; margin:11px 0; border-left:3.5px solid; font-size:9pt; }
+.box b { display:block; margin-bottom:3px; }
+.box.purple { background:var(--purple-bg); border-color:var(--purple); color:#4c1d95; }
+.box.blue   { background:var(--blue-bg);   border-color:var(--blue);   color:#0c4a6e; }
+.box.green  { background:var(--green-bg);  border-color:var(--green);  color:#064e3b; }
+.box.amber  { background:var(--amber-bg);  border-color:var(--amber);  color:#78350f; }
+
+/* ── Math block ── */
+.math { background:#0f172a; border-radius:7px; padding:14px 18px; margin:10px 0;
+        font-family:'JetBrains Mono',monospace; font-size:8.5pt; line-height:2;
+        color:#e2e8f0; border:1px solid #1e293b; }
+.math .ml { font-family:'Inter',sans-serif; font-size:7pt; color:#475569; text-transform:uppercase;
+            letter-spacing:1.2px; margin-bottom:4px; }
+
+/* ── Pipeline steps ── */
+.pipe { margin:14px 0; }
+.prow { display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; }
+.pn { width:26px; height:26px; border-radius:50%; color:#fff; font-size:8pt; font-weight:700;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pb2 { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:9px 13px; }
+.pb2 .t { font-weight:600; font-size:9pt; margin-bottom:2px; }
+.pb2 .d { font-size:8.5pt; color:var(--muted); }
+
+/* ── Q&A ── */
+.qa { border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:14px; }
+.qq { background:var(--ink); color:#fff; padding:9px 14px; font-weight:600; font-size:9pt;
+      display:flex; align-items:flex-start; gap:9px; }
+.qn { background:var(--purple); color:#fff; min-width:19px; height:19px; border-radius:4px;
+      display:flex; align-items:center; justify-content:center; font-size:7.5pt; font-weight:700; flex-shrink:0; margin-top:1px; }
+.qa p { padding:10px 14px; margin:0; font-size:9pt; color:var(--muted); line-height:1.65; }
+
+/* ── Grid ── */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:10px 0; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:13px; }
+.card h4 { margin-top:0; }
+
+/* ── Badges ── */
+.badges { display:flex; flex-wrap:wrap; gap:7px; margin:10px 0; }
+.badge { padding:3px 10px; border-radius:20px; font-size:7.5pt; font-weight:600; }
+.badge.p { background:var(--purple-bg); color:#6d28d9; }
+.badge.b { background:var(--blue-bg);   color:#1d4ed8; }
+.badge.g { background:var(--green-bg);  color:#065f46; }
+.badge.a { background:var(--amber-bg);  color:#92400e; }
+
+hr { border:none; border-top:1px solid var(--border); margin:20px 0; }
+
+/* ── Flow diagram ── */
+.flow-diagram {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 0;
+  align-items: center;
+  margin: 16px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 16px;
+}
+.fd-box {
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.fd-box .name { font-weight: 700; font-size: 9pt; }
+.fd-box .sub  { font-size: 7.5pt; color: var(--muted); margin-top: 2px; }
+.fd-box.kdc  { background: var(--purple-bg); border: 1.5px solid #a78bfa; }
+.fd-box.data { background: var(--blue-bg);   border: 1.5px solid #7dd3fc; }
+.fd-box.cli  { background: var(--green-bg);  border: 1.5px solid #6ee7b7; }
+.fd-arr {
+  text-align: center; font-size: 8pt; color: var(--light); padding: 0 8px;
+}
+.fd-arr .lbl { font-size: 7pt; color: var(--muted); display: block; }
+
+footer { text-align:center; color:var(--light); font-size:8pt; margin-top:28px; padding-top:14px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<!-- ─── COVER ─── -->
+<div class="cover">
+  <div class="chip">Interview Reference · Concise Edition</div>
+  <h1>Secure<em>Docs</em></h1>
+  <div class="sub">Identity-Based Encryption document sharing platform — full pipeline, key decisions, and interview Q&amp;A.</div>
+  <div class="tags">
+    <span class="tag">Node.js · Express</span>
+    <span class="tag">React · Vite</span>
+    <span class="tag">MongoDB</span>
+    <span class="tag">IBE (Boneh–Franklin)</span>
+    <span class="tag">C + OpenSSL + PBC</span>
+    <span class="tag">WebAssembly</span>
+    <span class="tag">AES-256-GCM</span>
+    <span class="tag">PBKDF2-SHA512</span>
+    <span class="tag">JWT · Nodemailer</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="n">3</div><div class="l">Services</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">DB Clusters</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">Keys on Server</div></div>
+  </div>
+</div>
+
+
+<!-- ─── PAGE 1 · ARCHITECTURE + IBE ─── -->
+<div class="page">
+  <div class="sec">Section 1</div>
+  <h2>Architecture Overview</h2>
+  <div class="rule"></div>
+
+  <p><strong>Core principle:</strong> No single compromised service can expose both encrypted files and decryption keys. The KDC and data server run independently with separate MongoDB clusters. All cryptography runs client-side in WebAssembly — servers only ever see ciphertext.</p>
+
+  <div class="services">
+    <div class="svc kdc">
+      <div class="port">KDC · :5007</div>
+      <h4>Key Distribution Center</h4>
+      <ul>
+        <li>Registration + OTP email</li>
+        <li>Runs native C <code>keygen</code> binary</li>
+        <li>AES-wraps IBE private key</li>
+        <li>Emails encrypted key (.dat)</li>
+        <li>Issues JWT on login</li>
+        <li>Stores: users + KDF salts</li>
+      </ul>
+    </div>
+    <div class="svc ds">
+      <div class="port">Data Server · :5006</div>
+      <h4>Storage API</h4>
+      <ul>
+        <li>Verifies JWT (shared secret)</li>
+        <li>Accepts encrypted blobs via Multer</li>
+        <li>Stores opaque ciphertext in MongoDB</li>
+        <li>Returns base64 ciphertext on download</li>
+        <li>Never decrypts anything</li>
+        <li>Stores: Document blobs only</li>
+      </ul>
+    </div>
+    <div class="svc ui">
+      <div class="port">Client · :5173</div>
+      <h4>React SPA</h4>
+      <ul>
+        <li>Loads WASM crypto module</li>
+        <li>Decrypts .dat key locally (Web Crypto)</li>
+        <li>IBE sign + encrypt before upload</li>
+        <li>IBE decrypt + verify after download</li>
+        <li>JWT stored in localStorage</li>
+        <li>No plaintext ever leaves browser</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="flow-diagram">
+    <div class="fd-box cli"><div class="name">Browser</div><div class="sub">React + WASM</div></div>
+    <div class="fd-arr">⟷<span class="lbl">JWT + ciphertext</span></div>
+    <div class="fd-box data"><div class="name">Data Server</div><div class="sub">:5006 · MongoDB</div></div>
+    <div class="fd-arr">⟷<span class="lbl">JWT auth only</span></div>
+    <div class="fd-box kdc"><div class="name">KDC</div><div class="sub">:5007 · MongoDB</div></div>
+  </div>
+
+  <hr>
+
+  <div class="sec">Section 2</div>
+  <h2>IBE Cryptography</h2>
+  <div class="rule"></div>
+
+  <p><strong>Scheme:</strong> Boneh–Franklin IBE using bilinear pairings (Type A curve via PBC library). The user's email address <em>is</em> their public key — no certificate authority needed.</p>
+
+  <div class="g2">
+    <div>
+      <h3>Setup (run once)</h3>
+      <div class="math">
+        <div class="ml">Outputs: master_secret_key.dat + public_params.dat</div>
+        <span class="kp">g</span> ∈ G1 &nbsp;<span class="c">← random generator</span><br>
+        <span class="kp">msk</span> ∈ Zr &nbsp;<span class="c">← master secret (KDC only)</span><br>
+        <span class="kp">P_pub</span> = <span class="kp">g</span>^<span class="kp">msk</span> &nbsp;<span class="c">← master public key</span>
+      </div>
+      <h3>Keygen (per user)</h3>
+      <div class="math">
+        <div class="ml">Runs C binary on KDC for every new user</div>
+        <span class="kp">Q</span> = <span class="kg">H</span>(<span class="kb">email</span>) &nbsp;<span class="c">← hash ID to G1</span><br>
+        <span class="kp">d</span> = <span class="kp">Q</span>^<span class="kp">msk</span> &nbsp;<span class="c">← private key → AES-wrap → email</span>
+      </div>
+    </div>
+    <div>
+      <h3>Encrypt (WASM, client)</h3>
+      <div class="math">
+        <div class="ml">encrypt(publicParams, recipientEmail, msg, sig)</div>
+        <span class="kp">Q</span> = <span class="kg">H</span>(<span class="kb">recipient</span>), &nbsp;<span class="kr">r</span> ∈ Zr random<br>
+        <span class="kp">U</span> = <span class="kp">g</span>^<span class="kr">r</span><br>
+        <span class="kp">g_T</span> = e(<span class="kp">Q</span>, <span class="kp">P_pub</span>)^<span class="kr">r</span> &nbsp;<span class="c">← shared secret</span><br>
+        <span class="kp">V</span> = (msg ‖ sig) ⊕ <span class="kg">KDF</span>(<span class="kp">g_T</span>)<br>
+        <span class="c">ciphertext = U ‖ V</span>
+      </div>
+      <h3>Decrypt (WASM, client)</h3>
+      <div class="math">
+        <div class="ml">decrypt(privateKey, ciphertext) → msg + sig</div>
+        <span class="kp">g_T</span> = e(<span class="kp">U</span>, <span class="kp">d</span>) &nbsp;<span class="c">← same value (bilinear property)</span><br>
+        plaintext = <span class="kp">V</span> ⊕ <span class="kg">KDF</span>(<span class="kp">g_T</span>)
+      </div>
+    </div>
+  </div>
+
+  <h3>Digital Signatures (BLS-style, identity-bound)</h3>
+  <div class="g2">
+    <div class="math">
+      <div class="ml">Sign — sender signs file before encryption</div>
+      <span class="kp">h</span> = <span class="kg">H_Zr</span>(file) &nbsp;<span class="c">← SHA-256 → Zr element</span><br>
+      <span class="kp">σ</span> = <span class="kp">d_sender</span>^<span class="kp">h</span> &nbsp;<span class="c">← signature in G1</span>
+    </div>
+    <div class="math">
+      <div class="ml">Verify — recipient checks after decryption</div>
+      <span class="kp">Q_s</span> = <span class="kg">H</span>(<span class="kb">senderEmail</span>)<br>
+      e(<span class="kp">σ</span>, <span class="kp">g</span>) <span class="kr">==</span> e(<span class="kp">Q_s</span>^<span class="kp">h</span>, <span class="kp">P_pub</span>) &nbsp;<span class="c">← valid?</span>
+    </div>
+  </div>
+
+  <div class="box purple">
+    <b>Why signatures are inside the encryption</b>
+    <code>V = (file ‖ sig) ⊕ KDF(g_T)</code> — the signature is encrypted with the file, so only the recipient can verify sender identity. Eavesdroppers see nothing.
+  </div>
+</div>
+
+
+<!-- ─── PAGE 2 · END-TO-END PIPELINE ─── -->
+<div class="page pb">
+  <div class="sec">Section 3</div>
+  <h2>End-to-End Pipeline</h2>
+  <div class="rule"></div>
+
+  <h3 style="color:#7c3aed">Registration</h3>
+  <div class="pipe">
+    <div class="prow">
+      <div class="pn" style="background:#7c3aed">1</div>
+      <div class="pb2"><div class="t">User → KDC: email + password</div>
+      <div class="d"><code>POST /api/auth/initiate-registration</code> — validated for <code>@iiita.ac.in</code>, password ≥6. Bcrypt-hash password, generate 6-digit OTP via <code>crypto.randomInt</code>, store <code>PendingRegistration</code> (TTL 10 min).</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#7c3aed">2</div>
+      <div class="pb2"><div class="t">KDC → User: OTP email via Nodemailer</div>
+      <div class="d">Gmail SMTP port 465, TLS. Plain-text OTP with 10-min expiry notice.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#7c3aed">3</div>
+      <div class="pb2"><div class="t">User → KDC: OTP verify</div>
+      <div class="d"><code>POST /api/auth/verify-registration</code> — check OTP match + expiry.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#7c3aed">4</div>
+      <div class="pb2"><div class="t">KDC: run native C keygen binary</div>
+      <div class="d"><code>execFile('keygen', [email], {cwd: NATIVE_CRYPTO_DIR})</code> — computes <code>d = H(email)^msk</code>, writes <code>{email}_private_key.dat</code>. 5 s timeout.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#7c3aed">5</div>
+      <div class="pb2"><div class="t">KDC: AES-256-GCM wrap private key with user's password</div>
+      <div class="d">16-byte random salt → PBKDF2(password, salt, 100 000 iter, SHA-512, 32 B) → AES-GCM encrypt → package: <strong>[salt(16) | authTag(16) | IV(12) | ciphertext]</strong>. Raw key file deleted immediately.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#7c3aed">6</div>
+      <div class="pb2"><div class="t">KDC → User: encrypted key as email attachment</div>
+      <div class="d">Nodemailer attaches <code>encrypted_private_key_{email}.dat</code>. User instructed to store it safely. KDF salt saved to MongoDB (<code>User.kdfSalt</code>). PendingRegistration deleted.</div></div>
+    </div>
+  </div>
+
+  <h3 style="color:#0284c7">Login &amp; Key Load</h3>
+  <div class="pipe">
+    <div class="prow">
+      <div class="pn" style="background:#0284c7">1</div>
+      <div class="pb2"><div class="t">User → KDC: login credentials</div>
+      <div class="d"><code>POST /api/auth/login</code> — <code>bcrypt.compare</code> → sign JWT <code>{ user: {id, email} }</code>, 1-day expiry, shared <code>JWT_SECRET</code>. Token stored in <code>localStorage</code>.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#0284c7">2</div>
+      <div class="pb2"><div class="t">User loads .dat file + password in browser (KeyLoader component)</div>
+      <div class="d">Web Crypto API: PBKDF2 re-derives AES key → AES-GCM decrypts blob → raw IBE private key stays in browser memory only. Never sent to any server.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#0284c7">3</div>
+      <div class="pb2"><div class="t">Dashboard loads WASM module + public parameters</div>
+      <div class="d">Fetches <code>/crypto_module.js</code>, <code>/a.param</code>, <code>/public_params.dat</code> from Vite static server. Mounts <code>a.param</code> into Emscripten MEMFS. Pairing engine initialized in browser.</div></div>
+    </div>
+  </div>
+
+  <h3 style="color:#059669">File Upload (Sender)</h3>
+  <div class="pipe">
+    <div class="prow">
+      <div class="pn" style="background:#059669">1</div>
+      <div class="pb2"><div class="t">WASM: sign raw file bytes</div>
+      <div class="d"><code>wasm_sign_buffer(senderPrivKey, fileBytes)</code> → σ = d_sender^H_Zr(file) in G1.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#059669">2</div>
+      <div class="pb2"><div class="t">WASM: IBE-encrypt (file ‖ signature) for recipient email</div>
+      <div class="d"><code>wasm_encrypt_buffer(publicParams, recipientEmail, fileBytes, sigBytes)</code> → <code>U ‖ V</code>.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#059669">3</div>
+      <div class="pb2"><div class="t">POST ciphertext to data server</div>
+      <div class="d"><code>POST /api/files/upload-encrypted</code> — FormData: <code>encryptedFile</code> blob + <code>recipientId</code>. JWT in <code>Authorization</code> header. Multer reads into memory (max 100 MB). Saved as <code>Document</code> in MongoDB.</div></div>
+    </div>
+  </div>
+
+  <h3 style="color:#b45309">File Download &amp; Verify (Recipient)</h3>
+  <div class="pipe">
+    <div class="prow">
+      <div class="pn" style="background:#b45309">1</div>
+      <div class="pb2"><div class="t">GET received file list (metadata only)</div>
+      <div class="d"><code>GET /api/files/received</code> — <code>Document.find({ recipientId: req.user.email })</code>, excludes <code>encryptedData</code> field.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#b45309">2</div>
+      <div class="pb2"><div class="t">GET encrypted blob — authorization check enforced</div>
+      <div class="d"><code>GET /api/files/download-encrypted/:id</code> — server checks <code>document.recipientId === req.user.email</code>. Returns <code>{ encryptedDataB64 }</code>.</div></div>
+    </div>
+    <div class="prow">
+      <div class="pn" style="background:#b45309">3</div>
+      <div class="pb2"><div class="t">WASM: decrypt → verify signature</div>
+      <div class="d"><code>wasm_decrypt_buffer(privKey, ciphertext)</code> → file + sig. Then <code>wasm_verify_buffer(pubParams, senderEmail, file, sig)</code> → 0 valid / 1 invalid. UI shows result. Plaintext never leaves browser.</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─── PAGE 3 · KEY PROTECTION + APIS + SECURITY ─── -->
+<div class="page pb">
+  <div class="sec">Section 4</div>
+  <h2>Key Protection, APIs &amp; Security</h2>
+  <div class="rule"></div>
+
+  <h3>Private Key Package Format</h3>
+  <pre><span class="c">// Package layout (bytes) — built by KDC, decrypted by browser Web Crypto</span>
+┌──────────────┬──────────────┬───────────┬────────────────────────────┐
+│  Salt 16 B   │ AuthTag 16 B │  IV 12 B  │   AES-256-GCM ciphertext   │
+└──────────────┴──────────────┴───────────┴────────────────────────────┘
+KDF: PBKDF2(password, salt, <span class="ky">100_000</span> iter, SHA-512, <span class="ky">32</span> B) → AES key</pre>
+
+  <div class="g2">
+    <div>
+      <h4>JWT — Issued by KDC</h4>
+<pre><span class="c">// Payload</span>
+{ user: { id: user.id, email: user.email } }
+jwt.sign(payload, JWT_SECRET, { expiresIn: <span class="ky">'1d'</span> })</pre>
+    </div>
+    <div>
+      <h4>JWT — Verified by Data Server</h4>
+<pre><span class="c">// Same JWT_SECRET, stateless</span>
+<span class="kp">const</span> decoded = jwt.verify(token, JWT_SECRET);
+req.user = decoded.user; <span class="c">// { id, email }</span></pre>
+    </div>
+  </div>
+
+  <h3>API Reference</h3>
+  <table>
+    <tr><th>Service</th><th>Method + Endpoint</th><th>Auth</th><th>Description</th></tr>
+    <tr><td>KDC</td><td><code>POST /api/auth/initiate-registration</code></td><td>None</td><td>Validate, bcrypt, OTP, send email</td></tr>
+    <tr><td>KDC</td><td><code>POST /api/auth/verify-registration</code></td><td>None</td><td>Verify OTP → keygen → AES-wrap → email .dat → create User</td></tr>
+    <tr><td>KDC</td><td><code>POST /api/auth/login</code></td><td>None</td><td>bcrypt.compare → sign JWT → return token</td></tr>
+    <tr><td>Data</td><td><code>POST /api/files/upload-encrypted</code></td><td>JWT</td><td>Multer buffer → save Document (senderId from JWT)</td></tr>
+    <tr><td>Data</td><td><code>GET /api/files/received</code></td><td>JWT</td><td>Metadata list for req.user.email as recipientId</td></tr>
+    <tr><td>Data</td><td><code>GET /api/files/download-encrypted/:id</code></td><td>JWT</td><td>Authorization check → return encryptedDataB64</td></tr>
+  </table>
+
+  <h3>Database Schemas</h3>
+  <div class="g2">
+    <div class="card">
+      <h4>KDC — <code>User</code></h4>
+      <table style="font-size:8pt">
+        <tr><th>Field</th><th>Stored</th></tr>
+        <tr><td>email (unique)</td><td>Yes — <code>@iiita.ac.in</code> only</td></tr>
+        <tr><td>password</td><td>bcrypt hash only</td></tr>
+        <tr><td>kdfSalt</td><td>Yes (select:false)</td></tr>
+        <tr><td>IBE private key</td><td><strong>Never</strong></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>Data Server — <code>Document</code></h4>
+      <table style="font-size:8pt">
+        <tr><th>Field</th><th>Notes</th></tr>
+        <tr><td>encryptedData</td><td>Opaque IBE ciphertext Buffer</td></tr>
+        <tr><td>originalFileName</td><td>From client upload</td></tr>
+        <tr><td>senderId</td><td>Sender email (from JWT)</td></tr>
+        <tr><td>recipientId</td><td>Recipient email (indexed)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>Threat Model</h3>
+  <table>
+    <tr><th>Threat</th><th>What attacker gets</th><th>Why it fails</th></tr>
+    <tr><td>Data server breach</td><td>IBE ciphertext blobs</td><td>No keys on data server; computationally hard without IBE private key</td></tr>
+    <tr><td>KDC breach</td><td>kdfSalt + bcrypt hashes</td><td>Encrypted .dat never stored on KDC; msk needed to derive keys</td></tr>
+    <tr><td>Email intercepted</td><td>Encrypted .dat file</td><td>Must still brute-force password through 100k PBKDF2 iterations</td></tr>
+    <tr><td>JWT stolen</td><td>File metadata + ciphertext</td><td>No IBE key → cannot decrypt; 1-day expiry limits window</td></tr>
+    <tr><td>Forged sender</td><td>—</td><td>Signatures are identity-bound; forging requires msk or sender's private key</td></tr>
+  </table>
+
+  <div class="box green">
+    <b>Zero-knowledge server design</b>
+    No server ever sees plaintext files, raw IBE private keys, or user passwords. The KDC holds the raw key for milliseconds (keygen → AES-wrap → delete), then it only exists in the user's email and browser memory.
+  </div>
+
+  <div class="badges">
+    <span class="badge p">Boneh–Franklin IBE</span>
+    <span class="badge b">Bilinear Pairings (PBC)</span>
+    <span class="badge g">Client-Side Encryption</span>
+    <span class="badge a">Separated KDC + Storage</span>
+    <span class="badge p">BLS-style Signatures</span>
+    <span class="badge b">WebAssembly (Emscripten)</span>
+    <span class="badge g">PBKDF2 + AES-256-GCM</span>
+    <span class="badge a">OTP + JWT Auth</span>
+  </div>
+</div>
+
+
+<!-- ─── PAGE 4 · INTERVIEW Q&A ─── -->
+<div class="page pb">
+  <div class="sec">Section 5</div>
+  <h2>Interview Q&amp;A</h2>
+  <div class="rule"></div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">1</div>What is IBE and why did you use it instead of RSA/PGP?</div>
+    <p>IBE uses the recipient's email address as their public key — no certificate authority, no key exchange beforehand. A sender can encrypt for <code>alice@iiita.ac.in</code> without Alice having set up anything. In a closed institutional setting this eliminates all PKI management overhead. The math uses bilinear pairings: a sender computes a shared pairing value from the recipient's identity and the master public key; the KDC derives the matching private key from the master secret and the same identity hash.</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">2</div>Why is the KDC separate from the data server?</div>
+    <p>This is the core architectural decision. If both ran together, one breach would give an attacker both the ciphertext and the ability to generate decryption keys. By running them on separate processes with separate MongoDB clusters, neither can act alone: the data server has ciphertexts but no keys; the KDC has key-generation capability but no stored files. The only shared element is <code>JWT_SECRET</code> for stateless identity verification — which proves who you are, not what you can decrypt.</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">3</div>How does file encryption and decryption work end to end?</div>
+    <p>Sender: loads IBE private key from .dat file via Web Crypto, signs the raw file (<code>σ = d^h</code>), then IBE-encrypts <code>(file ‖ signature)</code> for the recipient's email — picking random <code>r</code>, computing ephemeral public value <code>U = g^r</code> and shared pairing value <code>g_T = e(Q, P_pub)^r</code>, XOR-streaming the plaintext with a SHA-256 counter KDF over <code>g_T</code>. Uploads ciphertext <code>U ‖ V</code>. Recipient: downloads blob, decrypts with their private key (<code>g_T = e(U, d)</code> gives the same value by the bilinear property), splits out file and signature, verifies signature against sender's email. All of this runs in WASM in the browser.</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">4</div>How is the IBE private key protected?</div>
+    <p>After keygen the raw key is immediately AES-256-GCM encrypted using a key derived by PBKDF2 (100 000 iterations, SHA-512) from the user's own password and a fresh 16-byte random salt. Package layout: <code>[salt(16) | authTag(16) | IV(12) | ciphertext]</code>. This blob is emailed as an attachment — never stored in any database. The salt alone (which is in MongoDB) is useless without the ciphertext. The ciphertext alone (in email) is useless without brute-forcing the password through 100k PBKDF2 rounds. The raw key file is deleted from disk immediately after wrapping.</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">5</div>Why WebAssembly for cryptography?</div>
+    <p>IBE requires the PBC library (pairing-based cryptography) written in C, which depends on GMP for arbitrary-precision arithmetic. There is no equivalent in JavaScript. Compiling it to WASM with Emscripten lets me run the same audited C code in the browser at near-native speed. Critically, the private key never has to leave the browser — there is no "send key to server and decrypt there" API, which would be the obvious weaker alternative.</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">6</div>What are bilinear pairings and why are they needed for IBE?</div>
+    <p>A bilinear pairing is a map <code>e: G1 × G1 → GT</code> with the property <code>e(aP, bQ) = e(P, Q)^(ab)</code>. This lets the scheme work: the encryptor computes <code>e(Q, P_pub)^r = e(Q, g)^(msk·r)</code>, and the decryptor computes <code>e(g^r, Q^msk) = e(g, Q)^(r·msk)</code> — identical values from different inputs. Without this algebraic property there is no way to couple a ciphertext (computed from an identity string and public params) to a private key (computed by the KDC from the master secret).</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">7</div>What does Nodemailer do and why is out-of-band key delivery important?</div>
+    <p>Nodemailer sends two emails: (1) the OTP during registration, proving the user controls the institutional address; (2) the encrypted <code>.dat</code> key attachment after keygen. Delivering the key via email means it is never stored on any server — an attacker who fully compromises both servers still cannot get the key. Recovery requires both the email account and the user's password, two independent factors the server never holds simultaneously.</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">8</div>How does authentication work across two separate backend services?</div>
+    <p>The KDC issues JWTs signed with <code>JWT_SECRET</code> (payload: <code>{ user: { id, email } }</code>, 1-day expiry). The data server shares the same <code>JWT_SECRET</code> and verifies tokens independently — no call back to the KDC needed. This stateless design means the data server knows <em>who</em> the request is from (email, id) without storing sessions or calling a remote auth service. The data server never issues tokens; it only consumes them.</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">9</div>What happens if someone uploads a file for the wrong recipient?</div>
+    <p>It is mathematically useless to them. IBE encryption is identity-bound — the shared secret <code>e(Q, P_pub)^r</code> is derived specifically from the recipient's identity hash. Only a private key derived from that same identity (by the KDC using the master secret) can reproduce the shared secret via <code>e(U, d)</code>. A wrong recipient who downloads the ciphertext cannot decrypt it with their own private key — the pairing values will not match.</p>
+  </div>
+
+  <div class="qa">
+    <div class="qq"><div class="qn">10</div>One-sentence summary of SecureDocs for an interviewer?</div>
+    <p>SecureDocs encrypts documents end-to-end in the browser using Boneh–Franklin IBE compiled to WebAssembly — where the recipient's email <em>is</em> their public key — stores only opaque ciphertext on the server, and delivers IBE private keys out-of-band as AES-256-GCM wrapped email attachments, so no server at any point holds both data and keys.</p>
+  </div>
+
+  <footer>SecureDocs · Interview Reference · Node.js · React · IBE · WebAssembly · AES-256-GCM · PBKDF2 · JWT</footer>
+</div>
+
+</body>
+</html>

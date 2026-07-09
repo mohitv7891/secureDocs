@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureDocs – Technical Documentation</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 11pt;
+      color: #1a1a2e;
+      background: #fff;
+      line-height: 1.65;
+    }
+
+    /* ─── Page structure for PDF printing ─────────────────────────── */
+    @media print {
+      .page-break { page-break-after: always; break-after: page; }
+      .no-break   { page-break-inside: avoid; break-inside: avoid; }
+      body        { font-size: 10pt; }
+      a           { color: inherit; text-decoration: none; }
+    }
+
+    /* ─── Cover Page ────────────────────────────────────────────────── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #0a1628 100%);
+      color: #fff;
+      padding: 40px;
+    }
+    .cover .badge {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 10pt;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .cover h1 {
+      font-size: 42pt;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #e94560, #0f3460, #53c0f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: brightness(1.8);
+    }
+    .cover .subtitle {
+      font-size: 16pt;
+      opacity: 0.85;
+      margin-bottom: 32px;
+    }
+    .cover .tags {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; margin-bottom: 48px;
+    }
+    .cover .tag {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 5px 14px; border-radius: 20px; font-size: 9.5pt;
+    }
+    .cover .meta { opacity: 0.55; font-size: 9.5pt; margin-top: 40px; }
+
+    /* ─── Content wrapper ───────────────────────────────────────────── */
+    .content { max-width: 900px; margin: 0 auto; padding: 40px 48px; }
+
+    /* ─── TOC ───────────────────────────────────────────────────────── */
+    .toc-section { padding: 40px 48px; max-width: 900px; margin: 0 auto; }
+    .toc-section h2 { font-size: 22pt; color: #0f3460; margin-bottom: 24px;
+                      border-bottom: 3px solid #e94560; padding-bottom: 8px; }
+    .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 40px; }
+    .toc-item { display: flex; justify-content: space-between;
+                padding: 5px 0; border-bottom: 1px dotted #ccc; font-size: 10.5pt; }
+    .toc-item a { color: #0f3460; text-decoration: none; }
+    .toc-item a:hover { color: #e94560; }
+    .toc-num { color: #e94560; font-weight: 700; margin-right: 8px; }
+
+    /* ─── Section Headings ──────────────────────────────────────────── */
+    h2.section-title {
+      font-size: 22pt; color: #0f3460;
+      border-left: 6px solid #e94560;
+      padding-left: 14px; margin: 48px 0 20px;
+    }
+    h3.subsection { font-size: 14pt; color: #16213e; margin: 28px 0 10px;
+                    padding-bottom: 4px; border-bottom: 1px solid #e0e0e0; }
+    h4.detail { font-size: 11.5pt; color: #0f3460; margin: 18px 0 8px; }
+
+    /* ─── Info Cards ───────────────────────────────────────────────── */
+    .card {
+      border: 1px solid #e0e0f0;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      background: #f8faff;
+    }
+    .card-accent { border-left: 4px solid #e94560; }
+    .card-blue   { border-left: 4px solid #0f3460; }
+    .card-green  { border-left: 4px solid #27ae60; }
+    .card-warn   { border-left: 4px solid #f39c12; background: #fffdf0; }
+
+    /* ─── Architecture Diagram (ASCII-style boxes) ─────────────────── */
+    .arch-diagram {
+      background: #0f1e35;
+      color: #a8d8ea;
+      border-radius: 10px;
+      padding: 28px 32px;
+      font-family: 'Courier New', monospace;
+      font-size: 9pt;
+      line-height: 1.9;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+    .arch-diagram .highlight { color: #53c0f0; font-weight: bold; }
+    .arch-diagram .box      { color: #ffd700; }
+    .arch-diagram .arrow    { color: #e94560; }
+
+    /* ─── Flow Steps ───────────────────────────────────────────────── */
+    .flow-steps { margin: 16px 0; }
+    .step {
+      display: flex; gap: 16px; margin-bottom: 14px; align-items: flex-start;
+    }
+    .step-num {
+      min-width: 32px; height: 32px;
+      background: #0f3460; color: #fff;
+      border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
+      font-weight: 700; font-size: 10pt; flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-content { flex: 1; }
+    .step-content strong { color: #0f3460; }
+
+    /* ─── Tables ────────────────────────────────────────────────────── */
+    table {
+      width: 100%; border-collapse: collapse;
+      margin: 16px 0; font-size: 10pt;
+    }
+    th {
+      background: #0f3460; color: #fff;
+      padding: 10px 14px; text-align: left;
+    }
+    td { padding: 9px 14px; border-bottom: 1px solid #e8e8ee; }
+    tr:nth-child(even) td { background: #f5f7fc; }
+    tr:hover td { background: #eef2fc; }
+
+    /* ─── Code Snippets ─────────────────────────────────────────────── */
+    .code-block {
+      background: #1a1a2e; color: #a8d8ea;
+      border-radius: 8px; padding: 18px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 8.8pt; line-height: 1.7;
+      overflow-x: auto; margin: 12px 0;
+      border-left: 3px solid #e94560;
+    }
+    .code-block .comment { color: #6c8ebf; }
+    .code-block .keyword { color: #e94560; }
+    .code-block .string  { color: #ffd700; }
+    .code-block .fn      { color: #53c0f0; }
+
+    code { background: #eef2fc; color: #c0392b; padding: 2px 6px;
+           border-radius: 4px; font-size: 9pt; font-family: 'Courier New', monospace; }
+
+    /* ─── Callout boxes ─────────────────────────────────────────────── */
+    .callout {
+      display: flex; gap: 14px; padding: 14px 18px;
+      border-radius: 8px; margin: 14px 0; align-items: flex-start;
+    }
+    .callout-info  { background: #e8f4fd; border: 1px solid #bdd7ee; }
+    .callout-warn  { background: #fef9e7; border: 1px solid #f9e4b7; }
+    .callout-tip   { background: #eafaf1; border: 1px solid #a9dfbf; }
+    .callout-icon  { font-size: 18pt; line-height: 1; }
+    .callout-body  { flex: 1; font-size: 10pt; }
+    .callout-body strong { display: block; margin-bottom: 3px; }
+
+    /* ─── Lists ──────────────────────────────────────────────────────── */
+    ul, ol { margin: 10px 0 10px 24px; }
+    li { margin-bottom: 5px; }
+    ul.check-list { list-style: none; margin-left: 0; }
+    ul.check-list li::before { content: "✓ "; color: #27ae60; font-weight: bold; }
+
+    /* ─── Dividers ──────────────────────────────────────────────────── */
+    hr.section-sep { border: none; border-top: 2px solid #e8e8f0; margin: 48px 0; }
+    .pill { display: inline-block; background: #0f3460; color: #fff;
+            padding: 2px 10px; border-radius: 12px; font-size: 8.5pt;
+            margin: 0 3px; vertical-align: middle; }
+    .pill-red { background: #e94560; }
+    .pill-green { background: #27ae60; }
+
+    /* ─── Subheader band ─────────────────────────────────────────────── */
+    .section-header-band {
+      background: linear-gradient(90deg, #0f3460 0%, #16213e 100%);
+      color: #fff; padding: 12px 24px; border-radius: 8px;
+      margin: 36px 0 20px; display: flex; align-items: center; gap: 12px;
+    }
+    .section-header-band .num { font-size: 20pt; font-weight: 700;
+                                 opacity: 0.5; line-height: 1; }
+    .section-header-band .label { font-size: 14pt; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="cover page-break">
+  <div class="badge">Technical Documentation</div>
+  <h1>SecureDocs</h1>
+  <p class="subtitle">Identity-Based Encrypted Document Sharing Platform</p>
+  <div class="tags">
+    <span class="tag">Node.js</span>
+    <span class="tag">Express.js</span>
+    <span class="tag">React.js</span>
+    <span class="tag">MongoDB</span>
+    <span class="tag">WebAssembly</span>
+    <span class="tag">IBE / BLS</span>
+    <span class="tag">AES-256-GCM</span>
+    <span class="tag">PBKDF2</span>
+    <span class="tag">OpenSSL</span>
+    <span class="tag">Emscripten</span>
+  </div>
+  <p style="opacity:0.75;font-size:12pt;max-width:600px;line-height:1.8;">
+    A production-grade secure document sharing system using Identity-Based Encryption,
+    BLS Digital Signatures, and a decoupled Key Distribution Center — ensuring
+    end-to-end confidentiality, sender authenticity, and zero single-point-of-compromise.
+  </p>
+  <p class="meta">IIITA Academic Project &nbsp;·&nbsp; Version 1.0 &nbsp;·&nbsp; May 2026</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TABLE OF CONTENTS
+══════════════════════════════════════════════════════════ -->
+<div class="toc-section page-break">
+  <h2>Table of Contents</h2>
+  <div class="toc-grid">
+    <div class="toc-item"><span><span class="toc-num">1</span><a href="#overview">Project Overview</a></span><span>3</span></div>
+    <div class="toc-item"><span><span class="toc-num">2</span><a href="#architecture">System Architecture</a></span><span>4</span></div>
+    <div class="toc-item"><span><span class="toc-num">3</span><a href="#components">Component Details</a></span><span>5</span></div>
+    <div class="toc-item"><span><span class="toc-num">4</span><a href="#crypto">Cryptographic Design</a></span><span>7</span></div>
+    <div class="toc-item"><span><span class="toc-num">5</span><a href="#wasm">WebAssembly Module</a></span><span>9</span></div>
+    <div class="toc-item"><span><span class="toc-num">6</span><a href="#registration">Registration Flow</a></span><span>11</span></div>
+    <div class="toc-item"><span><span class="toc-num">7</span><a href="#upload">File Upload (Encrypt) Flow</a></span><span>13</span></div>
+    <div class="toc-item"><span><span class="toc-num">8</span><a href="#download">File Download (Decrypt) Flow</a></span><span>15</span></div>
+    <div class="toc-item"><span><span class="toc-num">9</span><a href="#security">Security Architecture</a></span><span>17</span></div>
+    <div class="toc-item"><span><span class="toc-num">10</span><a href="#api">API Reference</a></span><span>18</span></div>
+    <div class="toc-item"><span><span class="toc-num">11</span><a href="#techstack">Technology Stack</a></span><span>20</span></div>
+    <div class="toc-item"><span><span class="toc-num">12</span><a href="#setup">Setup & Configuration</a></span><span>21</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 1 — PROJECT OVERVIEW
+══════════════════════════════════════════════════════════ -->
+<div class="content" id="overview">
+  <h2 class="section-title">1. Project Overview</h2>
+
+  <p>
+    <strong>SecureDocs</strong> is an end-to-end encrypted document sharing platform designed to allow
+    IIITA users to exchange confidential files with absolute cryptographic guarantees.
+    Unlike conventional systems that encrypt files at rest, SecureDocs encrypts documents
+    <em>before</em> they reach the server, using the recipient's email address as the
+    encryption key through <strong>Identity-Based Encryption (IBE)</strong>.
+  </p>
+
+  <div class="card card-accent" style="margin-top:20px;">
+    <h4 class="detail">Core Security Guarantees</h4>
+    <ul class="check-list">
+      <li>The <strong>Data Server</strong> stores only ciphertext — it never holds decryption keys.</li>
+      <li>The <strong>KDC</strong> holds only encrypted private keys — it never sees file content.</li>
+      <li>Private keys are encrypted with the user's password <em>before</em> being emailed.</li>
+      <li>Digital signatures guarantee that the recipient can verify the sender's identity.</li>
+      <li>All cryptographic operations (sign, encrypt, decrypt, verify) run in the <strong>browser</strong> via WebAssembly.</li>
+    </ul>
+  </div>
+
+  <h3 class="subsection">1.1 Problem Statement</h3>
+  <p>
+    Traditional secure file sharing relies on a single trusted server holding both encrypted
+    files and the keys — creating a single point of compromise. SecureDocs solves this by
+    architecturally separating the KDC and Data Server, and by performing all crypto
+    client-side so no plaintext ever travels over the network.
+  </p>
+
+  <h3 class="subsection">1.2 Key Innovations</h3>
+  <ul>
+    <li><strong>Identity-Based Encryption (BLS/Boneh-Franklin):</strong> Any user's email is inherently their public key — no certificate exchange required.</li>
+    <li><strong>Client-Side WebAssembly Crypto:</strong> The entire IBE/signature pipeline (C + PBC + OpenSSL) compiled to WASM runs directly in the browser.</li>
+    <li><strong>Decoupled Architecture:</strong> Two independent MongoDB clusters and two independent Node.js servers ensure that compromising either one yields nothing useful.</li>
+    <li><strong>Password-Encrypted Private Keys:</strong> Keys are wrapped with AES-256-GCM (PBKDF2-derived key) so the email carrying the key is useless without the password.</li>
+  </ul>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 2 — SYSTEM ARCHITECTURE
+══════════════════════════════════════════════════════════ -->
+<div class="content" id="architecture">
+  <h2 class="section-title">2. System Architecture</h2>
+
+  <p>SecureDocs uses a <strong>three-tier decoupled architecture</strong>:</p>
+
+  <div class="arch-diagram">
+<span class="highlight">                        ┌─────────────────────────────────────────────────┐</span>
+<span class="highlight">                        │              BROWSER (React + Vite)            │</span>
+<span class="highlight">                        │                                                 │</span>
+<span class="box">            ┌───────────┤  WebAssembly Crypto Module (IBE/Sign/Verify)  ├───────────┐</span>
+<span class="box">            │           │  PBKDF2 + AES-256-GCM  (Web Crypto API)        │           │</span>
+<span class="box">            │           └──────────────┬──────────────────┬──────────────┘           │</span>
+<span class="box">            │                          │                  │                          │</span>
+<span class="box">            │  HTTPS/JWT               │ HTTPS/JWT        │ Fetch / REST             │</span>
+<span class="box">            │                          │                  │                          │</span>
+<span class="box">     ┌──────▼──────────┐   ┌───────────▼────────────────┐   ┌────────────────────────┐</span>
+<span class="box">     │  KEY DISTRIBUTION│   │  DATA STORAGE SERVER       │   │  Email (Nodemailer)    │</span>
+<span class="box">     │  CENTER (KDC)    │   │  (Express + MongoDB)       │   │  SMTP / Gmail          │</span>
+<span class="box">     │  Port: 5007      │   │  Port: 5006                │   └────────────────────────┘</span>
+<span class="box">     │                  │   │                            │</span>
+<span class="box">     │  ▸ Auth (JWT)    │   │  ▸ Auth (JWT)              │</span>
+<span class="arrow">     │  ▸ IBE Setup     │   │  ▸ Upload Encrypted File   │</span>
+<span class="arrow">     │  ▸ Key Gen (C)   │   │  ▸ Download Ciphertext     │</span>
+<span class="arrow">     │  ▸ Key Encrypt   │   │  ▸ List Files              │</span>
+<span class="arrow">     │  ▸ Email Key     │   │                            │</span>
+<span class="box">     │                  │   │                            │</span>
+<span class="box">     └──────┬───────────┘   └───────────┬────────────────┘</span>
+<span class="box">            │                          │</span>
+<span class="box">     ┌──────▼──────────┐   ┌───────────▼────────────────┐</span>
+<span class="box">     │  MongoDB (KDC)  │   │  MongoDB (Data)            │</span>
+<span class="box">     │  Cluster A      │   │  Cluster B                 │</span>
+<span class="box">     │  Users + KdfSalt│   │  Documents (ciphertext)    │</span>
+<span class="box">     │  PendingRegs    │   │                            │</span>
+<span class="box">     └─────────────────┘   └────────────────────────────┘</span>
+<span class="highlight">
+     ┌─────────────────────────────────────────────────────────┐</span>
+<span class="highlight">     │  NATIVE CRYPTO (C Binary — runs on KDC host only)       │</span>
+<span class="highlight">     │  keygen   ▸ uses PBC + OpenSSL to derive d = H(id)^msk  │</span>
+<span class="highlight">     │  setup    ▸ generates master secret key + public params │</span>
+<span class="highlight">     └─────────────────────────────────────────────────────────┘</span>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      <strong>Two Separate MongoDB Clusters</strong>
+      KDC and Data Server each use their own MongoDB cluster. An attacker who compromises
+      the Data Server cluster gets only ciphertext. An attacker who compromises the KDC
+      cluster gets only password-encrypted private keys (useless without the user's password).
+    </div>
+  </div>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 3 — COMPONENT DETAILS
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="components">
+  <h2 class="section-title">3. Component Details</h2>
+
+  <!-- 3.1 Client -->
+  <div class="section-header-band">
+    <span class="num">3.1</span><span class="label">React Client (Port 5173)</span>
+  </div>
+
+  <table>
+    <tr><th>File / Folder</th><th>Purpose</th></tr>
+    <tr><td><code>public/crypto_module.js</code></td><td>Emscripten-generated JS glue file for the WASM binary</td></tr>
+    <tr><td><code>public/crypto_module.wasm</code></td><td>Compiled WebAssembly binary (IBE + BLS + OpenSSL + PBC)</td></tr>
+    <tr><td><code>public/a.param</code></td><td>PBC pairing parameters (Type-A curve, public)</td></tr>
+    <tr><td><code>public/public_params.dat</code></td><td>IBE public parameters: compressed <code>g</code> ∥ <code>P_pub</code></td></tr>
+    <tr><td><code>src/utils/cryptoUtils.js</code></td><td>Web Crypto API helpers (PBKDF2, AES-GCM decrypt for private key)</td></tr>
+    <tr><td><code>src/components/FileUpload.jsx</code></td><td>UI: sign + IBE-encrypt file, POST to Data Server</td></tr>
+    <tr><td><code>src/components/FileList.jsx</code></td><td>UI: list + download + WASM-decrypt received files</td></tr>
+    <tr><td><code>src/components/KeyLoader.jsx</code></td><td>UI: import email-delivered encrypted private key (.dat), decrypt in-browser</td></tr>
+    <tr><td><code>src/context/AuthContext.jsx</code></td><td>JWT storage, user state, <code>decryptedPrivateKeyBuffer</code></td></tr>
+    <tr><td><code>src/pages/Dashboard.jsx</code></td><td>Loads WASM module + pairing params into Emscripten's MEMFS on mount</td></tr>
+  </table>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">
+      <strong>WASM Module Loading</strong>
+      On Dashboard mount, <code>createCryptoModule()</code> instantiates the WASM binary,
+      then <code>a.param</code> and <code>public_params.dat</code> are fetched over HTTP and
+      written into Emscripten's in-memory virtual filesystem (MEMFS) at <code>/a.param</code>
+      so the C code can call <code>fopen("/a.param", "rb")</code> as if it were a real file.
+    </div>
+  </div>
+
+  <!-- 3.2 KDC -->
+  <div class="section-header-band">
+    <span class="num">3.2</span><span class="label">Key Distribution Center – KDC (Port 5007)</span>
+  </div>
+
+  <table>
+    <tr><th>File</th><th>Responsibility</th></tr>
+    <tr><td><code>kdc_server.js</code></td><td>Express app, mounts auth + user routes, connects to MongoDB Cluster A</td></tr>
+    <tr><td><code>controllers/authController.js</code></td><td>Registration (OTP), OTP verification, login — issues JWT</td></tr>
+    <tr><td><code>utils/executeKeygen.js</code></td><td>Spawns native C <code>keygen</code> binary to derive IBE private key for a user email</td></tr>
+    <tr><td><code>utils/cryptoUtils.js</code></td><td>PBKDF2 (Node.js <code>crypto</code>) + AES-256-GCM — wraps raw key before email</td></tr>
+    <tr><td><code>utils/sendEmail.js</code></td><td>Nodemailer — sends OTP and encrypted key attachment via SMTP</td></tr>
+    <tr><td><code>models/User.js</code></td><td>Stores: <code>email</code>, bcrypt password hash, <code>kdfSalt</code> (Buffer)</td></tr>
+    <tr><td><code>models/PendingRegistration.js</code></td><td>Temporary document holding OTP, expiry, hashed password, temp password</td></tr>
+    <tr><td><code>opt/crypto-native/keygen</code></td><td>Native Linux binary: <code>keygen &lt;email&gt;</code> → writes <code>&lt;email&gt;_private_key.dat</code></td></tr>
+    <tr><td><code>opt/crypto-native/setup</code></td><td>Run once: generates master secret key + <code>public_params.dat</code></td></tr>
+  </table>
+
+  <!-- 3.3 Data Server -->
+  <div class="section-header-band">
+    <span class="num">3.3</span><span class="label">Data Storage Server (Port 5006)</span>
+  </div>
+
+  <table>
+    <tr><th>File</th><th>Responsibility</th></tr>
+    <tr><td><code>server.js</code></td><td>Express app, Multer for file upload, connects to MongoDB Cluster B</td></tr>
+    <tr><td><code>controllers/filecontroller.js</code></td><td>Upload ciphertext, list received files, download ciphertext by ID</td></tr>
+    <tr><td><code>middleware/authMiddleware.js</code></td><td>Validates JWT (Bearer token), attaches <code>req.user = {id, email}</code></td></tr>
+    <tr><td><code>models/Document.js</code></td><td>Stores: <code>originalFileName</code>, <code>encryptedData</code> (Buffer), <code>senderId</code>, <code>recipientId</code></td></tr>
+  </table>
+
+  <!-- 3.4 Crypto C module -->
+  <div class="section-header-band">
+    <span class="num">3.4</span><span class="label">Native Crypto Module (C + PBC + OpenSSL)</span>
+  </div>
+  <table>
+    <tr><th>Source File</th><th>Role</th></tr>
+    <tr><td><code>src/ibe.c / ibe.h</code></td><td>Core IBE: <code>Encrypt()</code>, <code>Decrypt()</code>, <code>DeriveKey()</code> using PBC pairings</td></tr>
+    <tr><td><code>src/setup.c</code></td><td>One-time system setup: generates master secret key + public parameters</td></tr>
+    <tr><td><code>src/keygen.c</code></td><td>Key generation: given email ID, computes <em>d = H(id)<sup>msk</sup></em></td></tr>
+    <tr><td><code>src/sign.c</code></td><td>BLS signature: <em>σ = d<sup>H(m)</sup></em></td></tr>
+    <tr><td><code>src/verify.c</code></td><td>BLS verification: checks pairing equality</td></tr>
+    <tr><td><code>src/bls_ibe_util.c/h</code></td><td>Shared utilities: pairing init, element serialization, hash-to-Zr</td></tr>
+    <tr><td><code>src/wasm_wrappers.c</code></td><td>Exported WASM functions: sign, encrypt, decrypt, verify, free_buffer</td></tr>
+  </table>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 4 — CRYPTOGRAPHIC DESIGN
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="crypto">
+  <h2 class="section-title">4. Cryptographic Design</h2>
+
+  <h3 class="subsection">4.1 Identity-Based Encryption (IBE) — Boneh-Franklin / BLS</h3>
+
+  <p>
+    IBE eliminates the need for public key certificates. A user's <strong>email address
+    is their public key</strong>. The KDC's master secret key is used to derive per-user
+    private keys. The scheme used is the <em>Boneh-Franklin IBE</em> constructed over
+    Type-A bilinear pairings (via the <strong>PBC library</strong>).
+  </p>
+
+  <div class="card card-blue">
+    <h4 class="detail">IBE Mathematical Summary</h4>
+    <table>
+      <tr><th>Phase</th><th>Operation</th><th>Result</th></tr>
+      <tr>
+        <td><strong>Setup</strong> (run once)</td>
+        <td>Pick generator <em>g ∈ G₁</em>, random <em>msk ∈ Z<sub>p</sub></em></td>
+        <td>Public params: <em>(g, P<sub>pub</sub> = g<sup>msk</sup>)</em></td>
+      </tr>
+      <tr>
+        <td><strong>KeyGen</strong> (per user)</td>
+        <td><em>d<sub>id</sub> = H(id)<sup>msk</sup></em> where <em>H: {0,1}* → G₁</em></td>
+        <td>User's private key <em>d<sub>id</sub></em></td>
+      </tr>
+      <tr>
+        <td><strong>Encrypt</strong></td>
+        <td>Pick random <em>r ∈ Z<sub>p</sub></em>; compute <em>U = g<sup>r</sup></em>,
+            <em>V = m ⊕ KDF(ê(H(id), P<sub>pub</sub>)<sup>r</sup>)</em></td>
+        <td>Ciphertext <em>(U, V)</em></td>
+      </tr>
+      <tr>
+        <td><strong>Decrypt</strong></td>
+        <td><em>m = V ⊕ KDF(ê(d<sub>id</sub>, U))</em></td>
+        <td>Plaintext <em>m</em></td>
+      </tr>
+    </table>
+    <p style="margin-top:10px;font-size:9.5pt;color:#555;">
+      KDF is a SHA-256-based key derivation on the pairing output, producing a 32-byte XOR mask (stream cipher substitute).
+    </p>
+  </div>
+
+  <h3 class="subsection">4.2 BLS Digital Signatures</h3>
+  <p>
+    Before encryption, the sender <strong>signs the raw file bytes</strong> using their own IBE
+    private key as a BLS signing key. The signature is concatenated with the file before
+    encryption, so the recipient can verify sender identity after decryption.
+  </p>
+  <div class="card card-accent">
+    <h4 class="detail">BLS Signature Scheme</h4>
+    <table>
+      <tr><th>Operation</th><th>Formula</th></tr>
+      <tr><td><strong>Sign</strong></td><td><em>σ = d<sub>sender</sub><sup>H(m)</sup></em> where <em>H: msg → Z<sub>p</sub></em></td></tr>
+      <tr><td><strong>Verify</strong></td><td>Check <em>ê(σ, g) == ê(H(id<sub>sender</sub>)<sup>msk</sup>, g<sup>H(m)</sup>)</em></td></tr>
+    </table>
+    <p style="margin-top:8px;font-size:9.5pt;color:#555;">
+      The sender ID (email) and public params are sufficient for the verifier; no additional public key exchange is needed.
+    </p>
+  </div>
+
+  <h3 class="subsection">4.3 AES-256-GCM — Private Key Protection</h3>
+  <p>
+    Raw IBE private keys are <em>never transmitted in plaintext</em>. Before being emailed,
+    the KDC wraps each key with AES-256-GCM using a key derived from the user's password:
+  </p>
+  <div class="code-block">
+<span class="comment">// kdc/utils/cryptoUtils.js</span>
+<span class="comment">// 1. Derive 256-bit AES key from password + random salt using PBKDF2</span>
+<span class="fn">deriveKey</span>(password, salt)  <span class="comment">// PBKDF2-SHA-512, 100,000 iterations, 32-byte output</span>
+
+<span class="comment">// 2. Encrypt raw private key with AES-256-GCM</span>
+<span class="fn">encryptAES</span>(rawKeyBuffer, derivedKey)  <span class="comment">// random 12-byte IV, 16-byte auth tag</span>
+
+<span class="comment">// 3. Package for email attachment</span>
+<span class="comment">// Format: [Salt(16)] [AuthTag(16)] [IV(12)] [EncryptedKey]</span>
+<span class="fn">packageEncryptedData</span>(salt, iv, encryptedData, authTag)
+  </div>
+
+  <table>
+    <tr><th>Parameter</th><th>Value</th><th>Standard</th></tr>
+    <tr><td>KDF Algorithm</td><td>PBKDF2</td><td>RFC 8018</td></tr>
+    <tr><td>KDF Hash</td><td>SHA-512</td><td>FIPS 180-4</td></tr>
+    <tr><td>KDF Iterations</td><td>100,000</td><td>NIST SP 800-132</td></tr>
+    <tr><td>Salt Length</td><td>16 bytes (random)</td><td>NIST SP 800-132</td></tr>
+    <tr><td>AES Key Length</td><td>256 bits</td><td>FIPS 197</td></tr>
+    <tr><td>AES Mode</td><td>GCM (authenticated)</td><td>NIST SP 800-38D</td></tr>
+    <tr><td>IV / Nonce</td><td>12 bytes (random)</td><td>NIST SP 800-38D</td></tr>
+    <tr><td>Auth Tag</td><td>16 bytes</td><td>NIST SP 800-38D</td></tr>
+  </table>
+
+  <h3 class="subsection">4.4 In-Browser Decryption (Web Crypto API)</h3>
+  <p>
+    The client-side <code>cryptoUtils.js</code> mirrors the KDC's crypto exactly using the browser's
+    native <strong>SubtleCrypto</strong> API — no crypto library is shipped to the client:
+  </p>
+  <div class="code-block">
+<span class="comment">// client/src/utils/cryptoUtils.js</span>
+<span class="keyword">const</span> baseKey = <span class="keyword">await</span> subtle.<span class="fn">importKey</span>(<span class="string">"raw"</span>, passwordBytes, <span class="string">"PBKDF2"</span>, ...);
+<span class="keyword">const</span> aesKey  = <span class="keyword">await</span> subtle.<span class="fn">deriveKey</span>({ name: <span class="string">"PBKDF2"</span>, salt, iterations: 100000, hash: <span class="string">"SHA-512"</span> }, ...);
+<span class="keyword">const</span> rawKey  = <span class="keyword">await</span> subtle.<span class="fn">decrypt</span>({ name: <span class="string">"AES-GCM"</span>, iv, tagLength: 128 }, aesKey, ciphertext‖authTag);
+  </div>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 5 — WEBASSEMBLY MODULE
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="wasm">
+  <h2 class="section-title">5. WebAssembly Module</h2>
+
+  <h3 class="subsection">5.1 Build Pipeline</h3>
+  <div class="card card-blue">
+    <div style="font-family:'Courier New',monospace;font-size:9.5pt;line-height:2;">
+      C Sources (ibe.c, sign.c, verify.c, bls_ibe_util.c, wasm_wrappers.c)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;↓ <strong>emcc</strong> (Emscripten)<br/>
+      + Linked Libraries: <strong>libpbc.a</strong> (bilinear pairings) + <strong>libssl.a / libcrypto.a</strong> (OpenSSL 3.0.13)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;↓<br/>
+      <strong>crypto_module.wasm</strong> — WebAssembly binary (runs in browser)<br/>
+      <strong>crypto_module.js</strong> — Emscripten glue / JS wrapper
+    </div>
+  </div>
+
+  <h3 class="subsection">5.2 Exported WASM Functions</h3>
+  <table>
+    <tr><th>C Function</th><th>JS Export</th><th>Description</th></tr>
+    <tr>
+      <td><code>wasm_sign_buffer()</code></td>
+      <td><code>Module._wasm_sign_buffer</code></td>
+      <td>Sign a message buffer with the IBE private key. Returns compressed G₁ signature bytes.</td>
+    </tr>
+    <tr>
+      <td><code>wasm_encrypt_buffer()</code></td>
+      <td><code>Module._wasm_encrypt_buffer</code></td>
+      <td>IBE-encrypt (msg ∥ sig) for a recipient email. Returns compressed U ∥ V ciphertext.</td>
+    </tr>
+    <tr>
+      <td><code>wasm_decrypt_buffer()</code></td>
+      <td><code>Module._wasm_decrypt_buffer</code></td>
+      <td>IBE-decrypt ciphertext using the caller's private key. Returns plaintext (msg ∥ sig).</td>
+    </tr>
+    <tr>
+      <td><code>wasm_verify_buffer()</code></td>
+      <td><code>Module._wasm_verify_buffer</code></td>
+      <td>BLS-verify the signature against the sender's identity and the recovered message.</td>
+    </tr>
+    <tr>
+      <td><code>wasm_free_buffer()</code></td>
+      <td><code>Module._wasm_free_buffer</code></td>
+      <td>Free C-allocated output buffers (caller must invoke after consuming results).</td>
+    </tr>
+  </table>
+
+  <h3 class="subsection">5.3 Emscripten Glue File (crypto_module.js)</h3>
+  <p>
+    The glue file is an Emscripten-generated JavaScript wrapper (~3000 lines, minified) that:
+  </p>
+  <ul>
+    <li>Detects the runtime environment (browser, Worker, Node.js) and configures file loading accordingly.</li>
+    <li>Implements <strong>MEMFS</strong> — a complete in-memory virtual filesystem so the C code can call POSIX file I/O (<code>fopen</code>, <code>fread</code>, etc.) on files preloaded from the browser.</li>
+    <li>Instantiates the <code>.wasm</code> binary via <code>WebAssembly.instantiateStreaming()</code> (with ArrayBuffer fallback).</li>
+    <li>Exposes <code>Module.HEAPU8</code>, <code>HEAP32</code>, etc. for reading/writing the WASM linear memory from JavaScript.</li>
+    <li>Provides <code>ccall</code> / <code>cwrap</code> helpers for C-to-JS type conversion (strings → UTF-8 pointers, arrays → heap pointers).</li>
+    <li>Exports the async factory: <code>createCryptoModule()</code> — resolves with the fully initialized Module once WASM is ready.</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <strong>Memory Management</strong>
+      All buffers returned by <code>wasm_sign_buffer</code>, <code>wasm_encrypt_buffer</code>,
+      and <code>wasm_decrypt_buffer</code> are <code>malloc</code>-allocated in C.
+      JavaScript must call <code>wasm_free_buffer(ptr, len)</code> after copying the result
+      into a JS <code>Uint8Array</code>, or WASM heap memory will leak.
+    </div>
+  </div>
+
+  <h3 class="subsection">5.4 Virtual Filesystem Initialization</h3>
+  <div class="code-block">
+<span class="comment">// Dashboard.jsx — on component mount</span>
+<span class="keyword">const</span> Module = <span class="keyword">await</span> <span class="fn">createCryptoModule</span>();         <span class="comment">// instantiate WASM</span>
+
+<span class="keyword">const</span> paramsBuffer = <span class="keyword">await</span> <span class="fn">fetch</span>(<span class="string">'/a.param'</span>)           <span class="comment">// fetch pairing params</span>
+  .then(r => r.<span class="fn">arrayBuffer</span>());
+Module.<span class="fn">FS_createDataFile</span>(<span class="string">'/'</span>, <span class="string">'a.param'</span>,             <span class="comment">// write to MEMFS</span>
+  <span class="keyword">new</span> Uint8Array(paramsBuffer), <span class="keyword">true</span>, <span class="keyword">false</span>);
+
+<span class="comment">// C code running inside WASM can now call:</span>
+<span class="comment">// FILE *fp = fopen("/a.param", "rb");  // works!</span>
+  </div>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 6 — REGISTRATION FLOW
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="registration">
+  <h2 class="section-title">6. User Registration Flow</h2>
+
+  <div class="callout callout-info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      Registration is a <strong>two-step process</strong>: OTP verification first, then
+      key generation and distribution. Only <code>@iiita.ac.in</code> email addresses are accepted.
+    </div>
+  </div>
+
+  <div class="flow-steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>User submits registration form</strong> (name, email, password) → Client POSTs to
+        <code>KDC /api/auth/register/initiate</code>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>KDC validates email domain</strong> (<code>@iiita.ac.in</code>), hashes password with
+        bcrypt (10 rounds), generates a 6-digit OTP (crypto.randomInt), and saves a
+        <code>PendingRegistration</code> document (TTL: 10 minutes). Temporarily stores
+        plaintext password for key derivation after OTP verification.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>KDC emails OTP</strong> to the user's IIITA address via Nodemailer (SMTP/SSL on port 465).
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>User submits OTP</strong> → Client POSTs to <code>KDC /api/auth/register/verify</code>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <strong>KDC verifies OTP + expiry</strong>. On success, it calls <code>executeKeygen(email)</code>
+        which spawns the native C binary: <br/>
+        <code>$ ./keygen user@iiita.ac.in</code><br/>
+        The binary reads <code>a.param</code> + <code>master_secret_key.dat</code> from <code>opt/crypto-native/</code>
+        and writes <code>user@iiita.ac.in_private_key.dat</code> (raw binary G₁ element).
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <strong>KDC reads key file into memory</strong>, then <strong>immediately deletes</strong> the
+        temp file from disk. The raw key never persists on the KDC filesystem.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <strong>KDC encrypts the private key</strong> with AES-256-GCM:
+        <ul>
+          <li>Generates a random 16-byte salt, stores it in the User document as <code>kdfSalt</code>.</li>
+          <li>Derives AES key: <code>PBKDF2(password, salt, 100000, 32, sha512)</code>.</li>
+          <li>Encrypts: <code>AES-256-GCM(rawKey, aesKey, randomIV)</code>.</li>
+          <li>Packages: <code>[Salt(16)][AuthTag(16)][IV(12)][EncryptedKey]</code>.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-content">
+        <strong>KDC saves User to MongoDB</strong> (Cluster A): stores email, bcrypt hash, kdfSalt.
+        The encrypted key package is <em>not</em> stored — only emailed.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">9</div>
+      <div class="step-content">
+        <strong>KDC emails the encrypted key package</strong> as a binary attachment to the user.
+        The email subject reads: "Your SecureDocs Private Key".
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">10</div>
+      <div class="step-content">
+        <strong>User downloads the attachment</strong>, loads it in the KeyLoader component,
+        enters their password → the browser decrypts it using SubtleCrypto (PBKDF2 + AES-GCM)
+        and holds the raw private key buffer in memory (AuthContext state) for the session.
+      </div>
+    </div>
+  </div>
+
+  <div class="arch-diagram" style="margin-top:20px;">
+Browser           KDC (Port 5007)               Native C             Email
+  │                    │                            │                   │
+  │─── POST /register/initiate ──────────────────►│                   │
+  │    { name, email, password }                   │                   │
+  │                    │── bcrypt hash pwd ─────────┤                   │
+  │                    │── save PendingReg ──────────┤                   │
+  │◄── 200 OTP sent ───│──── sendEmail(OTP) ─────────────────────────►│
+  │                    │                            │                   │
+  │─── POST /register/verify ───────────────────►│                   │
+  │    { email, otp }  │                            │                   │
+  │                    │── validate OTP ────────────┤                   │
+  │                    │── execFile(keygen, email) ►│                   │
+  │                    │◄── rawKey (Buffer) ─────────┤                   │
+  │                    │── delete temp key file ─────┤                   │
+  │                    │── PBKDF2 + AES-GCM encrypt key                │
+  │                    │── save User (kdfSalt only) ─┤                   │
+  │◄── 201 registered ─│──── sendEmail(encKey.dat) ──────────────────►│
+  </div>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 7 — FILE UPLOAD / ENCRYPT FLOW
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="upload">
+  <h2 class="section-title">7. File Upload (Encrypt &amp; Sign) Flow</h2>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">🔐</span>
+    <div class="callout-body">
+      All cryptographic operations happen <strong>entirely in the browser</strong> using the
+      WASM module. The Data Server receives only ciphertext and never sees the plaintext file.
+    </div>
+  </div>
+
+  <h3 class="subsection">Prerequisites (in browser memory)</h3>
+  <ul>
+    <li>WASM Module loaded + <code>a.param</code> written to MEMFS</li>
+    <li><code>public_params.dat</code> fetched (contains compressed <em>g</em> ∥ <em>P<sub>pub</sub></em>)</li>
+    <li>Sender's decrypted private key buffer (from KeyLoader + SubtleCrypto)</li>
+    <li>Valid JWT token (from KDC login)</li>
+  </ul>
+
+  <div class="flow-steps" style="margin-top:20px;">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>User selects a file and enters recipient email.</strong>
+        FileUpload.jsx reads the file as an ArrayBuffer → Uint8Array.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>WASM Sign:</strong> Allocate private key buffer on WASM heap. Call
+        <code>Module._wasm_sign_buffer(privKeyPtr, privKeyLen, msgPtr, msgLen, outLenPtr)</code>.
+        Returns a pointer to the compressed G₁ signature bytes (σ).
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>WASM Encrypt:</strong> Construct plaintext as <code>message ∥ signature</code>.
+        Call <code>Module._wasm_encrypt_buffer(pubParamsPtr, pubParamsLen, recipientEmail,
+        msgPtr, msgLen, sigPtr, sigLen, outULenPtr, outTotalLenPtr)</code>.
+        Returns a pointer to <code>compressed_U ∥ V</code>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>Copy ciphertext</strong> from WASM heap into a JS <code>Uint8Array</code>, then call
+        <code>wasm_free_buffer(ptr)</code> to release C-allocated memory.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <strong>POST to Data Server:</strong> Build a <code>FormData</code> object with the ciphertext
+        blob (filename: <code>original.ext.&lt;recipient_email&gt;.enc</code>) and
+        <code>recipientId</code>. Attach JWT in <code>Authorization: Bearer &lt;token&gt;</code> header.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <strong>Data Server stores ciphertext</strong> to MongoDB Cluster B as a Document with
+        <code>senderId</code> (email), <code>recipientId</code> (email), <code>originalFileName</code>,
+        and <code>encryptedData</code> (binary Buffer).
+      </div>
+    </div>
+  </div>
+
+  <div class="arch-diagram" style="margin-top:20px;">
+Browser (WASM)                          Data Server (5006)    MongoDB B
+  │                                            │                   │
+  │ 1. Read file bytes → msgBuffer             │                   │
+  │ 2. wasm_sign_buffer(privKey, msg) → sig    │                   │
+  │ 3. wasm_encrypt_buffer(pubParams,          │                   │
+  │       recipientEmail, msg, sig) → cipher   │                   │
+  │ 4. wasm_free_buffer(ptr)                   │                   │
+  │                                            │                   │
+  │── POST /api/files/upload ─────────────────►│                   │
+  │   FormData: { file: cipher, recipientId }  │                   │
+  │   Authorization: Bearer &lt;JWT&gt;             │                   │
+  │                                            │── authMiddleware ─┤
+  │                                            │── Document.save() ►│
+  │◄── 201 { documentId } ─────────────────────│                   │
+  </div>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 8 — FILE DOWNLOAD / DECRYPT FLOW
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="download">
+  <h2 class="section-title">8. File Download (Decrypt &amp; Verify) Flow</h2>
+
+  <div class="flow-steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>User opens Dashboard.</strong> FileList.jsx calls
+        <code>GET /api/files/received</code> (JWT required). Data Server queries MongoDB B
+        for documents where <code>recipientId == req.user.email</code>. Returns metadata
+        list (no encrypted data included).
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>User clicks Download.</strong> Client calls
+        <code>GET /api/files/download/:id</code> (JWT required). Server verifies the
+        requesting user's email matches <code>recipientId</code> on the document, then
+        streams the binary <code>encryptedData</code> buffer back.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>WASM Decrypt:</strong> Allocate buffers. Extract U-length from the ciphertext
+        header (stored during upload). Call
+        <code>Module._wasm_decrypt_buffer(privKeyPtr, privKeyLen, uPtr, uLen, vPtr, vLen, outLenPtr)</code>.
+        Returns plaintext = <code>message ∥ signature</code>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>Split plaintext.</strong> Based on the stored original file length (or a
+        delimiter/header), split the decrypted buffer into <code>messageBytes</code> and
+        <code>signatureBytes</code>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <strong>WASM Verify:</strong> Call
+        <code>Module._wasm_verify_buffer(pubParamsPtr, senderEmail, msgPtr, msgLen, sigPtr, sigLen)</code>.
+        Returns <code>1</code> (valid) or <code>0</code> (invalid). If invalid, the user is warned
+        about possible tampering.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <strong>Present file to user.</strong> Create a Blob from <code>messageBytes</code>,
+        trigger a download with the original filename. Show verification badge ✓ or ✗.
+      </div>
+    </div>
+  </div>
+
+  <div class="arch-diagram" style="margin-top:20px;">
+Browser (WASM)              Data Server (5006)    MongoDB B
+  │                               │                   │
+  │── GET /api/files/received ───►│                   │
+  │   Authorization: Bearer &lt;JWT&gt; │                   │
+  │                               │── Document.find ──►│
+  │◄── [{id, filename, sender}] ──│                   │
+  │                               │                   │
+  │── GET /api/files/download/:id ►│                   │
+  │                               │── authorize user ─┤
+  │                               │── Document.findById►│
+  │◄── Binary ciphertext ──────────│                   │
+  │                               │                   │
+  │ wasm_decrypt_buffer(privKey, U, V) → plaintext    │
+  │ Split: msgBytes || sigBytes                       │
+  │ wasm_verify_buffer(pubParams, senderEmail, msg, sig)
+  │ → 1 (verified) / 0 (tampered)                    │
+  │                               │                   │
+  │ Trigger browser download + show verification status
+  </div>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body">
+      <strong>End-to-End Security Chain</strong>
+      The Data Server <em>cannot</em> decrypt anything (it has no private keys).
+      If a third party intercepts the email, the encrypted key attachment is useless without
+      the user's password. Even the KDC cannot read the files (separate DB, no ciphertexts).
+    </div>
+  </div>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 9 — SECURITY ARCHITECTURE
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="security">
+  <h2 class="section-title">9. Security Architecture</h2>
+
+  <h3 class="subsection">9.1 Threat Model &amp; Mitigations</h3>
+  <table>
+    <tr><th>Threat</th><th>Mitigation</th></tr>
+    <tr>
+      <td>Data Server compromise</td>
+      <td>Only ciphertext stored. No keys on this server. Attacker gets unusable blobs.</td>
+    </tr>
+    <tr>
+      <td>KDC database compromise</td>
+      <td>Keys are AES-GCM encrypted with PBKDF2-derived password key. kdfSalt stored but useless without password. Bcrypt hashes protect login passwords.</td>
+    </tr>
+    <tr>
+      <td>Email interception of private key</td>
+      <td>Key attachment is AES-256-GCM encrypted. Password required to decrypt — interceptor cannot derive the key without it.</td>
+    </tr>
+    <tr>
+      <td>Man-in-the-Middle (network)</td>
+      <td>All traffic over HTTPS/TLS (production). JWT token expiry limits session hijack window.</td>
+    </tr>
+    <tr>
+      <td>Unauthorized file access</td>
+      <td>Download endpoint verifies <code>req.user.email == document.recipientId</code>. JWT validates identity on every request.</td>
+    </tr>
+    <tr>
+      <td>Sender impersonation</td>
+      <td>BLS signatures tied to sender's IBE private key (derived by KDC from msk + email). Forging requires knowing the master secret key.</td>
+    </tr>
+    <tr>
+      <td>Replay / token theft</td>
+      <td>JWT has configurable expiry (<code>JWT_EXPIRES_IN</code>, default 1 day). Secret stored only in env vars.</td>
+    </tr>
+    <tr>
+      <td>Key on disk (KDC host)</td>
+      <td>Raw key file deleted immediately after reading into memory. Key never persisted beyond the moment of generation.</td>
+    </tr>
+    <tr>
+      <td>Private key in browser memory</td>
+      <td>Key held only as React state; cleared on logout/page refresh. Never written to localStorage or IndexedDB.</td>
+    </tr>
+    <tr>
+      <td>OTP brute force</td>
+      <td>6-digit OTP with 10-minute expiry; <code>PendingRegistration</code> document deleted after use or expiry.</td>
+    </tr>
+    <tr>
+      <td>Email domain spoofing</td>
+      <td>KDC enforces <code>@iiita.ac.in</code> domain check at registration. IBE key is inherently tied to the verified email.</td>
+    </tr>
+    <tr>
+      <td>Path traversal / injection in keygen</td>
+      <td><code>executeKeygen</code> validates <code>emailId</code> against regex <code>/^[a-zA-Z0-9@._-]+$/</code> before passing to <code>execFile</code> (uses argument array — no shell injection).</td>
+    </tr>
+  </table>
+
+  <h3 class="subsection">9.2 Separation of Secrets</h3>
+  <div class="card card-green">
+    <table>
+      <tr><th>Component</th><th>Knows</th><th>Does NOT Know</th></tr>
+      <tr><td>Data Server</td><td>Ciphertexts, user emails, JWT secret</td><td>Private keys, master secret key, passwords</td></tr>
+      <tr><td>KDC</td><td>Encrypted keys, kdfSalt, bcrypt hashes, master secret key</td><td>Plaintext files, file ciphertexts</td></tr>
+      <tr><td>Browser</td><td>Decrypted private key (RAM only), JWT, plaintext files</td><td>Master secret key, other users' keys</td></tr>
+      <tr><td>Email</td><td>Encrypted key blob</td><td>Decryption password, plaintext key</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 10 — API REFERENCE
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="api">
+  <h2 class="section-title">10. API Reference</h2>
+
+  <h3 class="subsection">10.1 KDC API (Port 5007) — Base: <code>/api</code></h3>
+  <table>
+    <tr>
+      <th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th>
+    </tr>
+    <tr>
+      <td><span class="pill pill-green">POST</span></td>
+      <td><code>/auth/register/initiate</code></td>
+      <td>None</td>
+      <td>Step 1 registration: validates email domain, hashes password, stores pending reg, sends OTP</td>
+    </tr>
+    <tr>
+      <td><span class="pill pill-green">POST</span></td>
+      <td><code>/auth/register/verify</code></td>
+      <td>None</td>
+      <td>Step 2: verify OTP → run keygen → encrypt key → email attachment → save user</td>
+    </tr>
+    <tr>
+      <td><span class="pill pill-green">POST</span></td>
+      <td><code>/auth/login</code></td>
+      <td>None</td>
+      <td>Validate email/bcrypt password → return JWT token</td>
+    </tr>
+    <tr>
+      <td><span class="pill">GET</span></td>
+      <td><code>/users</code></td>
+      <td>JWT</td>
+      <td>List all registered users (for sender to pick recipients)</td>
+    </tr>
+    <tr>
+      <td><span class="pill">GET</span></td>
+      <td><code>/users/me</code></td>
+      <td>JWT</td>
+      <td>Return current authenticated user's profile</td>
+    </tr>
+  </table>
+
+  <h4 class="detail">Registration Initiate — Request Body</h4>
+  <div class="code-block">
+{
+  <span class="string">"name"</span>: <span class="string">"John Doe"</span>,
+  <span class="string">"email"</span>: <span class="string">"john@iiita.ac.in"</span>,
+  <span class="string">"password"</span>: <span class="string">"mySecurePassword123"</span>
+}
+  </div>
+
+  <h4 class="detail">Login — Response Body</h4>
+  <div class="code-block">
+{
+  <span class="string">"token"</span>: <span class="string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="string">"user"</span>: { <span class="string">"id"</span>: <span class="string">"..."</span>, <span class="string">"email"</span>: <span class="string">"john@iiita.ac.in"</span>, <span class="string">"name"</span>: <span class="string">"John Doe"</span> }
+}
+  </div>
+
+  <h3 class="subsection">10.2 Data Server API (Port 5006) — Base: <code>/api</code></h3>
+  <table>
+    <tr>
+      <th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th>
+    </tr>
+    <tr>
+      <td><span class="pill pill-green">POST</span></td>
+      <td><code>/files/upload</code></td>
+      <td>JWT</td>
+      <td>Multipart upload: ciphertext blob + <code>recipientId</code> field. Saves Document to MongoDB.</td>
+    </tr>
+    <tr>
+      <td><span class="pill">GET</span></td>
+      <td><code>/files/received</code></td>
+      <td>JWT</td>
+      <td>Returns list of documents where <code>recipientId == req.user.email</code>. Excludes binary data.</td>
+    </tr>
+    <tr>
+      <td><span class="pill">GET</span></td>
+      <td><code>/files/download/:id</code></td>
+      <td>JWT</td>
+      <td>Returns binary ciphertext for document <code>:id</code>. Only if <code>recipientId</code> matches token email.</td>
+    </tr>
+  </table>
+
+  <h4 class="detail">Document Schema</h4>
+  <div class="code-block">
+{
+  _id:              ObjectId,
+  originalFileName: String,         <span class="comment">// original filename before encryption</span>
+  encryptedData:    Buffer,          <span class="comment">// IBE ciphertext: compressed_U || V</span>
+  senderId:         String,          <span class="comment">// sender email</span>
+  recipientId:      String,          <span class="comment">// recipient email (used as IBE identity)</span>
+  createdAt:        Date
+}
+  </div>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 11 — TECHNOLOGY STACK
+══════════════════════════════════════════════════════════ -->
+<div class="content" id="techstack">
+  <h2 class="section-title">11. Technology Stack</h2>
+
+  <table>
+    <tr><th>Layer</th><th>Technology</th><th>Version / Notes</th></tr>
+    <tr><td>Frontend Framework</td><td>React.js + Vite</td><td>React 18, Vite 5</td></tr>
+    <tr><td>Styling</td><td>Tailwind CSS</td><td>v3</td></tr>
+    <tr><td>HTTP Client</td><td>Axios</td><td>Used in React components</td></tr>
+    <tr><td>Backend Framework</td><td>Express.js</td><td>v4, Node.js ≥18</td></tr>
+    <tr><td>Database</td><td>MongoDB + Mongoose</td><td>2 separate clusters</td></tr>
+    <tr><td>Authentication</td><td>JWT (jsonwebtoken)</td><td>HS256, bcrypt for passwords</td></tr>
+    <tr><td>Email</td><td>Nodemailer</td><td>SMTP/SSL via Gmail App Password</td></tr>
+    <tr><td>File Upload (server)</td><td>Multer</td><td>Memory storage</td></tr>
+    <tr><td>IBE / Pairings</td><td>PBC Library</td><td>Type-A pairing, GMP</td></tr>
+    <tr><td>Symmetric Crypto (native)</td><td>OpenSSL 3.0.13</td><td>SHA-256, KDF, random</td></tr>
+    <tr><td>WASM Compilation</td><td>Emscripten</td><td>emcc, MEMFS, exported functions</td></tr>
+    <tr><td>In-Browser Crypto</td><td>Web Crypto API (SubtleCrypto)</td><td>PBKDF2, AES-GCM</td></tr>
+    <tr><td>Native Key Gen</td><td>C (compiled Linux binary)</td><td>Runs on KDC host only</td></tr>
+  </table>
+</div>
+
+<hr class="section-sep" />
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 12 — SETUP & CONFIGURATION
+══════════════════════════════════════════════════════════ -->
+<div class="content page-break" id="setup">
+  <h2 class="section-title">12. Setup &amp; Configuration</h2>
+
+  <h3 class="subsection">12.1 Prerequisites</h3>
+  <ul>
+    <li>Linux OS (native C binaries target Linux)</li>
+    <li>Node.js ≥ 18 + npm</li>
+    <li>MongoDB Atlas — two separate clusters</li>
+    <li>Gmail account with an App Password (for SMTP)</li>
+  </ul>
+
+  <h3 class="subsection">12.2 One-Time System Setup (IBE Parameters)</h3>
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <strong>Run setup only once.</strong> Re-running setup invalidates all existing user
+      private keys. Keep <code>master_secret_key.dat</code> secret and never commit it to source control.
+    </div>
+  </div>
+  <div class="code-block">
+<span class="comment"># In kdc/opt/crypto-native/</span>
+<span class="fn">chmod +x setup keygen</span>
+./setup   <span class="comment"># Generates: master_secret_key.dat + public_params.dat</span>
+
+<span class="comment"># Copy public files to client's public/ directory:</span>
+cp a.param            ../../client/public/
+cp public_params.dat  ../../client/public/
+  </div>
+
+  <h3 class="subsection">12.3 Environment Variables</h3>
+
+  <h4 class="detail">client/.env</h4>
+  <div class="code-block">
+VITE_API_BASE_URL=<span class="string">"http://localhost:5006/api"</span>
+VITE_KDC_BASE_URL=<span class="string">"http://localhost:5007/api"</span>
+  </div>
+
+  <h4 class="detail">server/.env</h4>
+  <div class="code-block">
+MONGO_URI=<span class="string">"mongodb+srv://user:pass@cluster-data.mongodb.net/securedocs"</span>
+JWT_SECRET=<span class="string">"a-very-long-random-secret-string-min-32-chars"</span>
+  </div>
+
+  <h4 class="detail">kdc/.env</h4>
+  <div class="code-block">
+MONGO_URI=<span class="string">"mongodb+srv://user:pass@cluster-kdc.mongodb.net/securedocs-kdc"</span>
+JWT_SECRET=<span class="string">"a-very-long-random-secret-string-min-32-chars"</span>   <span class="comment"># SAME as server</span>
+
+NATIVE_CRYPTO_DIR=<span class="string">"/absolute/path/to/kdc/opt/crypto-native"</span>
+NATIVE_KEYGEN_EXEC=<span class="string">"keygen"</span>
+NATIVE_PARAM_FILE=<span class="string">"a.param"</span>
+NATIVE_MSK_FILE=<span class="string">"master_secret_key.dat"</span>
+
+EMAIL_HOST=<span class="string">"smtp.gmail.com"</span>
+EMAIL_PORT=<span class="string">465</span>
+EMAIL_SECURE=<span class="string">true</span>
+EMAIL_USER=<span class="string">"your-email@iiita.ac.in"</span>
+EMAIL_PASS=<span class="string">"xxxx xxxx xxxx xxxx"</span>   <span class="comment"># 16-char Gmail App Password</span>
+EMAIL_FROM=<span class="string">"'SecureDocs your-email@iiita.ac.in'"</span>
+  </div>
+
+  <h3 class="subsection">12.4 Install &amp; Run</h3>
+  <div class="code-block">
+<span class="comment"># From project root</span>
+npm install
+cd server  &amp;&amp; npm install &amp;&amp; cd ..
+cd kdc     &amp;&amp; npm install &amp;&amp; cd ..
+cd client  &amp;&amp; npm install &amp;&amp; cd ..
+
+<span class="comment"># Start all three in separate terminals:</span>
+cd server  &amp;&amp; npm run dev   <span class="comment"># Data Server  → :5006</span>
+cd kdc     &amp;&amp; npm run dev   <span class="comment"># KDC Server   → :5007</span>
+cd client  &amp;&amp; npm run dev   <span class="comment"># React + Vite → :5173</span>
+  </div>
+
+  <h3 class="subsection">12.5 Ports Summary</h3>
+  <table>
+    <tr><th>Service</th><th>Default Port</th><th>Technology</th></tr>
+    <tr><td>React Frontend</td><td>5173</td><td>Vite dev server</td></tr>
+    <tr><td>Data Storage Server</td><td>5006</td><td>Node.js / Express</td></tr>
+    <tr><td>Key Distribution Center</td><td>5007</td><td>Node.js / Express</td></tr>
+    <tr><td>MongoDB (Data)</td><td>Atlas (cloud)</td><td>MongoDB Atlas Cluster B</td></tr>
+    <tr><td>MongoDB (KDC)</td><td>Atlas (cloud)</td><td>MongoDB Atlas Cluster A</td></tr>
+    <tr><td>SMTP</td><td>465 (SSL)</td><td>Gmail / Nodemailer</td></tr>
+  </table>
+
+  <hr class="section-sep" />
+
+  <!-- ── Final summary card ─────────────────────────────── -->
+  <div class="card card-accent no-break">
+    <h3 style="color:#0f3460;margin-bottom:12px;">Summary of Security Properties</h3>
+    <ul class="check-list">
+      <li>IBE ensures any valid IIITA email is an implicit public key — no PKI required.</li>
+      <li>BLS signatures guarantee sender authentication and file integrity.</li>
+      <li>AES-256-GCM with PBKDF2 (100k iterations, SHA-512) protects private keys at rest and in transit.</li>
+      <li>Architectural separation (two DBs, two servers) prevents any single breach from yielding both ciphertext and key.</li>
+      <li>All cryptographic operations execute client-side in WebAssembly — the server is a dumb ciphertext store.</li>
+      <li>No plaintext ever leaves the sender's browser; no decrypted data ever reaches the server.</li>
+    </ul>
+  </div>
+
+  <p style="text-align:center;color:#999;font-size:9pt;margin-top:60px;padding-top:20px;border-top:1px solid #eee;">
+    SecureDocs Technical Documentation &nbsp;·&nbsp; IIITA Academic Project &nbsp;·&nbsp; May 2026<br/>
+    Node.js · Express.js · React.js · MongoDB · WebAssembly · IBE (BLS/PBC) · AES-256-GCM · PBKDF2 · OpenSSL
+  </p>
+</div>
+
+</body>
+</html>

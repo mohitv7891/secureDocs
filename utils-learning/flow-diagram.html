@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>IBE SecureDocs Flow Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      background: #1e1e1e;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #7ec8e3;
+      margin-bottom: 30px;
+    }
+    .mermaid {
+      background: #2a2a2a;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>IBE SecureDocs: User1 Sends File to User2 — Complete E2E Flow</h2>
+
+  <div style="display:flex; gap:20px; margin-bottom:30px; flex-wrap:wrap;">
+    <div style="flex:1; min-width:280px; background:#0a1628; border:2px solid #1a5099; border-radius:10px; padding:18px;">
+      <h3 style="color:#5ab4f5; margin:0 0 10px 0;">🔐 KDC Server — Port 5007</h3>
+      <p style="color:#ccc; margin:0 0 8px 0;"><strong style="color:#fff;">Purpose:</strong> Key Distribution Center — handles identity, trust, and cryptographic key lifecycle.</p>
+      <ul style="color:#bbb; padding-left:18px; margin:0; line-height:1.8;">
+        <li>User registration &amp; OTP verification</li>
+        <li>Runs native C <code style="color:#f9c74f;">keygen</code> binary to produce IBE private keys</li>
+        <li>Encrypts IBE key with user's password (PBKDF2 + AES-GCM)</li>
+        <li>Emails <code style="color:#f9c74f;">.dat</code> key file to user</li>
+        <li>Login / JWT token issuance</li>
+        <li><strong style="color:#fff;">MongoDB stores:</strong> <code style="color:#f9c74f;">{email, bcryptHash, kdfSalt}</code></li>
+        <li style="color:#f77;">❌ Does NOT store files or encryptedKeyPkg</li>
+      </ul>
+      <p style="color:#aaa; margin:10px 0 0 0; font-size:13px;">Routes: <code style="color:#f9c74f;">/api/auth/*</code></p>
+    </div>
+    <div style="flex:1; min-width:280px; background:#0a1a10; border:2px solid #1a7040; border-radius:10px; padding:18px;">
+      <h3 style="color:#5af59a; margin:0 0 10px 0;">🗄️ Data Server — Port 5006</h3>
+      <p style="color:#ccc; margin:0 0 8px 0;"><strong style="color:#fff;">Purpose:</strong> Encrypted document storage — a dumb store, never sees plaintext.</p>
+      <ul style="color:#bbb; padding-left:18px; margin:0; line-height:1.8;">
+        <li>Receives &amp; stores encrypted file blobs (ciphertext only)</li>
+        <li>Lists files for a recipient by email</li>
+        <li>Serves ciphertext for download</li>
+        <li>Verifies JWT from KDC to authenticate requests</li>
+        <li><strong style="color:#fff;">MongoDB stores:</strong> <code style="color:#f9c74f;">{originalFileName, encryptedData, senderId, recipientId}</code></li>
+        <li style="color:#f77;">❌ Never sees plaintext, never handles crypto keys</li>
+      </ul>
+      <p style="color:#aaa; margin:10px 0 0 0; font-size:13px;">Routes: <code style="color:#f9c74f;">/files/*</code></p>
+    </div>
+    <div style="flex:1; min-width:280px; background:#1a1020; border:2px solid #6020a0; border-radius:10px; padding:18px;">
+      <h3 style="color:#c07af5; margin:0 0 10px 0;">❓ Why Two Separate Servers?</h3>
+      <ul style="color:#bbb; padding-left:18px; margin:0; line-height:1.8;">
+        <li><strong style="color:#fff;">Separation of concerns:</strong> KDC holds secrets (keys, passwords); Data Server holds ciphertext. Compromising one does not compromise the other.</li>
+        <li><strong style="color:#fff;">Principle of least privilege:</strong> Data Server has zero knowledge of crypto — it cannot decrypt anything even if fully breached.</li>
+        <li><strong style="color:#fff;">Independent scaling:</strong> File storage and key management have different load profiles.</li>
+        <li><strong style="color:#fff;">Security boundary:</strong> If the Data Server is breached, attackers get only useless ciphertext blobs.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="background:#111; border:1px solid #444; border-radius:8px; padding:12px 18px; margin-bottom:20px; font-size:13px; color:#ccc;">
+    <strong style="color:#f9c74f;">Which server is hit when?</strong> &nbsp;|&nbsp;
+    <span style="color:#5ab4f5;">■</span> <strong>KDC :5007</strong> → Register, Verify OTP, Login, Get JWT &nbsp;|&nbsp;
+    <span style="color:#5af59a;">■</span> <strong>Data Server :5006</strong> → Upload encrypted file, List received files, Download encrypted file
+    &nbsp;|&nbsp; <span style="color:#aaa;">Both servers share the same JWT_SECRET to validate tokens cross-server.</span>
+  </div>
+
+  <div class="mermaid">
+sequenceDiagram
+    autonumber
+
+    participant U1 as 🧑 User1 Browser (Sender)
+    participant U2 as 👩 User2 Browser (Recipient)
+    participant KDC as 🔐 KDC Server :5007 (MongoDB: Users)
+    participant DS as 🗄️ Data Server :5006 (MongoDB: Documents)
+    participant WASM as ⚙️ WASM Module (IBE C Library)
+
+    rect rgb(0, 80, 160)
+        Note over U1,KDC: ── PHASE 1: User1 Registration ── (hits KDC :5007 only)
+        U1->>KDC: POST /api/auth/register {name, email1, password1}
+        KDC->>KDC: bcrypt(password1) → hashedPw. Store PendingRegistration {email1, hashedPw, tempPassword1, OTP}
+        KDC-->>U1: 📧 OTP sent to email1
+        U1->>KDC: POST /api/auth/verify-otp {email1, OTP}
+        KDC->>KDC: Run native C binary: keygen email1 → private_key1.dat (uses master_secret_key.dat)
+        KDC->>KDC: PBKDF2(tempPassword1, salt) → AES key. AES-GCM encrypt(private_key1) → [Salt|AuthTag|IV|Ciphertext]
+        KDC->>KDC: Save User1 to KDC MongoDB {email1, bcryptHash, kdfSalt} — encryptedKeyPkg NOT stored in DB
+        KDC-->>U1: 📧 Email attachment: encrypted_private_key_email1.dat (encryptedKeyPkg = [Salt|AuthTag|IV|Ciphertext])
+    end
+
+    rect rgb(0, 120, 60)
+        Note over U2,KDC: ── PHASE 2: User2 Registration (Same Flow) ── (hits KDC :5007 only)
+        U2->>KDC: POST /api/auth/register {name, email2, password2}
+        KDC->>KDC: bcrypt(password2), generate OTP, Save PendingRegistration
+        KDC-->>U2: 📧 OTP sent to email2
+        U2->>KDC: POST /api/auth/verify-otp {email2, OTP}
+        KDC->>KDC: keygen email2 → private_key2.dat. AES-GCM encrypt with PBKDF2(password2, salt2)
+        KDC->>KDC: Save User2 to KDC MongoDB {email2, bcryptHash, kdfSalt} — encryptedKeyPkg NOT stored in DB
+        KDC-->>U2: 📧 Email attachment: encrypted_private_key_email2.dat
+    end
+
+    rect rgb(140, 90, 0)
+        Note over U1,WASM: ── PHASE 3: User1 Loads Key ── (client-side only, NO server hit)
+        U1->>U1: Select user1_private_key.dat + Enter password1
+        U1->>U1: SubtleCrypto PBKDF2(password1, salt) → derive AES key
+        U1->>U1: AES-GCM decrypt(encryptedKeyPkg) → raw IBE private_key1 (Uint8Array in RAM)
+        Note over U1: 🔑 Key lives ONLY in browser memory — never written to disk
+    end
+
+    rect rgb(160, 0, 40)
+        Note over U1,DS: ── PHASE 4: Encrypt + Send ── (crypto: client-side WASM, upload: Data Server :5006)
+        U1->>U1: Select file.pdf + Enter recipient email2
+        U1->>WASM: wasm_sign_buffer(private_key1, file_bytes)
+        WASM-->>U1: signature (IBE BLS signature using key1)
+        U1->>WASM: wasm_encrypt_buffer(public_params, email2, file_bytes + signature)
+        Note over WASM: IBE encrypts using email2 as public key. No need to fetch User2 key!
+        WASM-->>U1: ciphertext blob (.enc)
+        U1->>DS: POST /files/upload-encrypted { encryptedFile, recipientId: email2, senderId: email1 }
+        DS->>DS: Save to MongoDB Documents {originalFileName, encryptedData, senderId, recipientId}
+        DS-->>U1: ✅ 201 Upload successful {documentId}
+    end
+
+    rect rgb(80, 0, 140)
+        Note over U2,WASM: ── PHASE 5: User2 Loads Key ── (client-side only, NO server hit)
+        U2->>U2: Select user2_private_key.dat + Enter password2
+        U2->>U2: SubtleCrypto PBKDF2(password2, salt2) → AES-GCM decrypt
+        U2->>U2: raw IBE private_key2 (Uint8Array in RAM)
+        Note over U2: 🔑 Key2 in browser memory only
+    end
+
+    rect rgb(0, 100, 100)
+        Note over U2,DS: ── PHASE 6: Fetch + Decrypt + Verify ── (fetch: Data Server :5006, decrypt+verify: client-side WASM)
+        U2->>DS: GET /files/received (JWT auth header)
+        DS->>DS: Query MongoDB: Documents where recipientId = email2
+        DS-->>U2: [{documentId, originalFileName, senderId: email1}]
+        U2->>DS: GET /files/download-encrypted/:documentId
+        DS-->>U2: { encryptedDataB64 }
+        U2->>U2: base64 decode → encryptedUint8Array
+        U2->>WASM: wasm_decrypt_buffer(private_key2, ciphertext)
+        WASM-->>U2: plaintext = file_bytes + signature
+        U2->>U2: Split → messageData [0..msgLen] + signatureData [msgLen..]
+        U2->>WASM: wasm_verify_buffer(public_params, email1, messageData, signatureData)
+        Note over WASM: IBE verifies using email1 as public key. No need to fetch User1 key!
+        WASM-->>U2: 0 = VALID ✅  /  1 = INVALID ❌
+        U2->>U2: 💾 Save and download decrypted file.pdf
+    end
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', sequence: { actorFontSize: 14, noteFontSize: 13, messageFontSize: 13 } });
+  </script>
+</body>
+</html>

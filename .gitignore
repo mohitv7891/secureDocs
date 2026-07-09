@@ -2,4 +2,6 @@
 *.env
 .DS_Store
 **/.DS_Store
-*.pdf     
+*.pdf
+imp.txt
+**/imp.txt     

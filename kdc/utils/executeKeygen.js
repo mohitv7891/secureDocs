@@ -14,7 +14,7 @@ if (!NATIVE_CRYPTO_DIR) {
     throw new Error("KGS Server configuration error: NATIVE_CRYPTO_DIR not set.");
 }
 
-const keygenExecutablePath = path.join(NATIVE_CRYPTO_DIR, KEYGEN_EXEC);
+const keygenExecutablePath = path.resolve(NATIVE_CRYPTO_DIR, KEYGEN_EXEC);
 
 /**
  * Executes the native C keygen program (which writes a temporary file),
@@ -36,7 +36,7 @@ async function executeKeygen(emailId) {
     console.log(`executeKeygen (KGS): Generating temporary key for: ${emailId}`);
     // Determine the expected temporary key filename WITHIN NATIVE_CRYPTO_DIR
     const tempKeyFilename = `${emailId}_private_key.dat`;
-    const tempKeyPath = path.join(NATIVE_CRYPTO_DIR, tempKeyFilename);
+    const tempKeyPath = path.resolve(NATIVE_CRYPTO_DIR, tempKeyFilename);
     console.log(`executeKeygen (KGS): Expecting temporary key file at: ${tempKeyPath}`);
 
     return new Promise((resolve, reject) => {
